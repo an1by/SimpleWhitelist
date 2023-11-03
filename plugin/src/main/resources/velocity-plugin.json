@@ -1,0 +1,12 @@
+{
+  "id": "simplewhitelist",
+  "name": "SimpleWhitelist",
+  "version": "${version}",
+  "description": "Very simple whitelist system for your server",
+  "url": "https://modrinth.com/plugin/simplewhitelist",
+  "authors": [
+    "An1by"
+  ],
+  "dependencies": [],
+  "main": "net.aniby.simplewhitelist.velocity.SimpleWhitelist"
+}

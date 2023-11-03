@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "id": "simplewhitelist",
+  "version": "${version}",
+
+  "name": "SimpleWhitelist",
+  "description": "Very simple whitelist system for your server",
+  "authors": [
+    "An1by"
+  ],
+  "contact": {
+    "sources": "https://github.com/an1by/SimpleWhitelist",
+    "issues": "https://github.com/an1by/SimpleWhitelist/issues",
+    "homepage": "http://aniby.net"
+  },
+
+  "license": "All-Rights-Reserved",
+  "icon": "assets/simplewhitelist/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "server": [
+      "net.aniby.simplewhitelist.fabric.SimpleWhitelist"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": ">=${minecraft_version}",
+    "java": ">=17"
+  },
+  "suggests": {
+    "modmenu": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "Modrinth": "https://modrinth.com/plugin/simplewhitelist",
+        "Support me": "https://www.donationalerts.com/r/aniby"
+      },
+      "update_checker": true
+    }
+  }
+}
+ 

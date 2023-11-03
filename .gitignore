@@ -1,0 +1,7 @@
+/!templates/
+.gradle/
+.idea/
+build/
+run/
+*.log
+desktop.ini
