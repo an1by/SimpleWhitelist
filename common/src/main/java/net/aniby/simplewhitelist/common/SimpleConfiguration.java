@@ -65,9 +65,8 @@ public class SimpleConfiguration {
     }
 
     public SimpleConfiguration(final Path path) throws IOException {
-        Path path1 = loadFiles(path);
         this.loader = YAMLConfigurationLoader.builder()
-                .setPath(path1)
+                .setPath(loadFiles(path))
                 .build();
 
         load();

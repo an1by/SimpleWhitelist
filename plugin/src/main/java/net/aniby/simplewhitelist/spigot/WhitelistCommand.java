@@ -13,7 +13,7 @@ import java.util.List;
 
 public class WhitelistCommand implements CommandExecutor, TabCompleter {
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (args.length >= 1) {
             String result = SimpleCore.checkSubcommand(args[0], sender.hasPermission(SimpleCore.PERMISSION));
             if (result == null) {
