@@ -145,6 +145,8 @@ shadowJar {
     relocate 'org.aopalliance', "${project.group}.shadow.org.aopalliance"
     relocate "javax.inject", "${project.group}.shadow.javax.inject"
     exclude "net.aniby.simplewhitelist.common.plugin"
+    exclude "whitelist.txt"
+    exclude "default_config.json"
 }
 
 reobf {
