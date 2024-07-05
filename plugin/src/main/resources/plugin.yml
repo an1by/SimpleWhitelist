@@ -1,0 +1,16 @@
+name: SimpleWhitelist
+version: '${version}'
+main: net.aniby.simplewhitelist.spigot.SimpleWhitelist
+api-version: 1.18
+prefix: SimpleWhitelist
+load: STARTUP
+authors: [An1by]
+description: "Very simple whitelist system for your server"
+website: https://modrinth.com/plugin/simplewhitelist
+folia-supported: true
+
+commands:
+  simplewhitelist:
+    aliases:
+      - simplewl
+      - swl

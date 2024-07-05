@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "messages": {
+    "no_permission": "§cNot enough permissions!",
+    "invalid_arguments": "§cInvalid arguments!",
+    "need_player": "§cPlayer's name is needed!",
+    "already_whitelisted": "§cPlayer is already whitelisted!",
+    "help": "§5{ §dSimpleWhitelist §5}\n§e:: §7/swl add §b<name>\n§e:: §7/swl remove §b<name>\n§e:: §7/swl enable\n§e:: §7/swl disable\n§e:: §7/swl reload",
+    "kick": "§cYou are not in simple whitelist!"
+  },
+  "command_messages": {
+    "add": "<name> added to whitelist!",
+    "remove": "<name> removed from whitelist!",
+    "list": "In whitelist:\n<list>",
+    "enable": "Whitelist enabled!",
+    "disable": "Whitelist disabled!",
+    "reload": "Reload success!"
+  }
+}
