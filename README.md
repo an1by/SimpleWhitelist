@@ -28,6 +28,6 @@
 ---
 
 **TO DO:**
-- [ ] Lighten the plugin;
-- [ ] Forge support;
+- [x] ~~Lighten the plugin;~~
+- [x] ~~Forge support;~~
 - [ ] Legacy versions support.
