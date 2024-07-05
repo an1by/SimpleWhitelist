@@ -12,22 +12,6 @@ Download the newest plugin version on [Modrinth](https://modrinth.com/plugin/sim
 * Fully customizable messages;
 * Easy to use.
 
-### How to start using plugin?
-1. Disable Minecraft's whitelist in `server.properties` (`white-list=false`);
-2. Put plugin in `plugins` folder (or in `mods` for Fabric);
-3. Start your server;
-4. Add yourself to whitelist using `/swl add <player_name>` command;
-5. Enable whitelist using `/swl enable`
-
-### Commands:
-* `/swl add/remove <player_name>` - add or remove player from whitelist;\
-* `/swl list` - show list of whitelisted players;\
-* `/swl enable/disable` - enable or disable plugin;\
-* `/swl reload` - reload plugin.
-
----
-
-**TO DO:**
-- [x] ~~Lighten the plugin;~~
-- [x] ~~Forge support;~~
-- [ ] Legacy versions support.
+### User usage & TO DO:
+See on [Modrinth](https://modrinth.com/plugin/simplewhitelist)!\
+There is only short description and nothing more.
