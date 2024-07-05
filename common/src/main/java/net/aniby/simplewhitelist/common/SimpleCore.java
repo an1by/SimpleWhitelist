@@ -20,7 +20,7 @@ public class SimpleCore {
                 folder.mkdirs();
             file.createNewFile();
 
-            InputStream initialStream = _class.getClassLoader().getResourceAsStream(resourcePath);
+            InputStream initialStream = _class.getResourceAsStream(resourcePath);
             OutputStream outStream = new FileOutputStream(file);
 
             byte[] buffer = new byte[8 * 1024];

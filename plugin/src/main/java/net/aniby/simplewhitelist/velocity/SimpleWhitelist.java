@@ -54,7 +54,7 @@ public class SimpleWhitelist {
         Player player = event.getPlayer();
         if (!whitelist.isWhitelisted(player.getUsername()))
             player.disconnect(Component.text(
-                    configuration.getMessage("kick")
+                    configuration.getMessage("not_in_whitelist")
             ));
     }
 }

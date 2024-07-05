@@ -37,7 +37,7 @@ public final class SimpleWhitelist extends Plugin implements Listener {
     public void onLogin(PreLoginEvent event) {
         if (!whitelist.isWhitelisted(event.getConnection().getName())) {
             event.setCancelReason(new ComponentBuilder(
-                    configuration.getMessage("kick")
+                    configuration.getMessage("not_in_whitelist")
             ).create());
             event.setCancelled(true);
         }

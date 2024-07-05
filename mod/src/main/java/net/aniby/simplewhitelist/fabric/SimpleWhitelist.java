@@ -38,7 +38,7 @@ public final class SimpleWhitelist implements DedicatedServerModInitializer {
             String name = player.getName().getString();
             if (!whitelist.isWhitelisted(name))
                 player.networkHandler.disconnect(Text.of(
-                        configuration.getCommandMessage("kick")
+                        configuration.getMessage("not_in_whitelist")
                 ));
         });
     }

@@ -42,7 +42,7 @@ public final class SimpleWhitelist extends JavaPlugin implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerLogin(AsyncPlayerPreLoginEvent event) {
         if (!whitelist.isWhitelisted(event.getName())) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST, configuration.getMessage("kick"));
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST, configuration.getMessage("not_in_whitelist"));
         }
     }
 }
