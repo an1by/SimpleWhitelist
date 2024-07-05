@@ -1,7 +1,7 @@
 <a href='https://modrinth.com/plugin/simplewhitelist' target="_blank"><img alt='Modrinth' src='https://img.shields.io/modrinth/dt/mGVcEBwo?style=for-the-badge&logo=modrinth&label=Modrinth&labelColor=black&color=0037FF'/></a>
-<a href="https://www.spigotmc.org/resources/113370/"><img alt="SpigotMC" src="https://pluginbadges.glitch.me/api/v1/dl/Spigot-limegreen.svg?spigot=simplewhitelist.113370&style=for-the-badge"></a>
 # SimpleWhitelist
-
+\
+Download the newest plugin version on [Modrinth](https://modrinth.com/plugin/simplewhitelist)!
 ---
 
 **SimpleWhitelist** is an *essential plugin* for your private server.
