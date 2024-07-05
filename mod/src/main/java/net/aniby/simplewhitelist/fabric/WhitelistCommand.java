@@ -20,51 +20,64 @@ public class WhitelistCommand {
         final LiteralArgumentBuilder<ServerCommandSource> builder =
                 CommandManager.literal("simplewhitelist")
                         .requires(source -> source.hasPermissionLevel(3))
-                        .then(CommandManager.argument("add", StringArgumentType.word())
+                        .then(CommandManager.literal("add")
+                                .then(CommandManager.argument("name", StringArgumentType.word())
+                                        .executes(context -> {
+                                            final String name = StringArgumentType.getString(context, "name");
+                                            if (name == null) {
+                                                context.getSource().sendMessage(Text.of(
+                                                        configuration.getMessage("need_player")
+                                                ));
+                                                return 0;
+                                            }
+
+                                            boolean result = whitelist.isWhitelisted(name);
+
+                                            String message;
+                                            if (result) {
+                                                message = configuration.getMessage("already_whitelisted");
+                                            } else {
+                                                whitelist.addWhitelist(name);
+                                                whitelist.save();
+                                                message = configuration.getCommandMessage("add");
+                                            }
+
+                                            context.getSource().sendMessage(Text.of(message));
+
+                                            return result ? 1 : 0;
+                                        })
+                                ))
+                        .then(CommandManager.literal("add")
+                                .then(CommandManager.argument("name", StringArgumentType.word())
+                                        .executes(context -> {
+                                            final String name = StringArgumentType.getString(context, "name");
+                                            if (name == null) {
+                                                context.getSource().sendMessage(Text.of(
+                                                        configuration.getMessage("need_player")
+                                                ));
+                                                return 0;
+                                            }
+                                            whitelist.removeWhitelist(name);
+                                            whitelist.save();
+
+                                            context.getSource().sendMessage(Text.of(
+                                                    configuration.getCommandMessage("remove")
+                                            ));
+
+                                            return 1;
+                                        })
+                                ))
+                        .then(CommandManager.literal("list")
                                 .executes(context -> {
-                                    final String name = StringArgumentType.getString(context, "add");
-                                    if (name == null) {
-                                        context.getSource().sendMessage(Text.of(
-                                                configuration.getMessage("need_player")
-                                        ));
-                                        return 0;
-                                    }
-
-                                    boolean result = whitelist.isWhitelisted(name);
-
-                                    String message;
-                                    if (result) {
-                                        message = configuration.getMessage("already_whitelisted");
-                                    } else {
-                                        whitelist.addWhitelist(name);
-                                        whitelist.save();
-                                        message = configuration.getCommandMessage("add");
-                                    }
-
-                                    context.getSource().sendMessage(Text.of(message));
-
-                                    return result ? 1 : 0;
-                                })
-                        )
-                        .then(CommandManager.argument("remove", StringArgumentType.word())
-                                .executes(context -> {
-                                    final String name = StringArgumentType.getString(context, "add");
-                                    if (name == null) {
-                                        context.getSource().sendMessage(Text.of(
-                                                configuration.getMessage("need_player")
-                                        ));
-                                        return 0;
-                                    }
-                                    whitelist.removeWhitelist(name);
-                                    whitelist.save();
-
+                                    String list = whitelist.getWhitelistedAsString();
+                                    if (list.isEmpty())
+                                        list = configuration.getMessage("empty");
                                     context.getSource().sendMessage(Text.of(
-                                            configuration.getCommandMessage("remove")
+                                            configuration.getCommandMessage("list")
+                                                    .replace("<list>", list)
                                     ));
-
                                     return 1;
-                                })
-                        )
+                                }))
                         .then(CommandManager.literal("enable")
                                 .executes(context -> {
                                     configuration.getConfiguration().setEnabled(true);

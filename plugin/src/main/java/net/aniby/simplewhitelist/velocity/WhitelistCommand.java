@@ -61,8 +61,12 @@ public class WhitelistCommand implements SimpleCommand {
                         config.setEnabled(false);
                         config.save();
                     }
-                    case "list" ->
-                            subMessage = subMessage.replace("<list>", whitelist.getWhitelistedAsString());
+                    case "list" -> {
+                        String list = whitelist.getWhitelistedAsString();
+                        if (list.isEmpty())
+                            list = config.getMessage("empty");
+                        subMessage = subMessage.replace("<list>", list);
+                    }
                 }
                 sender.sendMessage(Component.text(subMessage));
                 return;

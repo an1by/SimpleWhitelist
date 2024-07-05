@@ -72,6 +72,17 @@ public class WhitelistCommand {
                                             return 1;
                                         })
                                 ))
+                        .then(Commands.literal("list")
+                                .executes(context -> {
+                                    String list = whitelist.getWhitelistedAsString();
+                                    if (list.isEmpty())
+                                        list = configuration.getMessage("empty");
+                                    context.getSource().sendSystemMessage(Component.literal(
+                                            configuration.getCommandMessage("list")
+                                                    .replace("<list>", list)
+                                    ));
+                                    return 1;
+                                }))
                         .then(Commands.literal("enable")
                                 .executes(context -> {
                                     configuration.setEnabled(true);
