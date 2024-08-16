@@ -21,6 +21,7 @@ public class PluginWhitelist implements WhitelistHandler, WhitelistConfiguration
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        this.load();
     }
 
     @Override
