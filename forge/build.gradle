@@ -87,14 +87,14 @@ dependencies {
     implementation project(path: ':common')
     shade project(path: ':common')
 
-    minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
+    minecraft "net.minecraftforge:forge:${project.forge_minecraft_version}-${project.forge_version}"
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = [
-            minecraft_version   : project.minecraft_version, minecraft_version_range: project.minecraft_version_range,
+            minecraft_version   : project.forge_minecraft_version, minecraft_version_range: project.minecraft_version_range,
             forge_version       : project.forge_version, forge_version_range: project.forge_version_range,
             loader_version_range: project.loader_version_range,
             mod_id              : mod_id, mod_name: project.mod_name, mod_license: project.mod_license, mod_version: project.project_version,
