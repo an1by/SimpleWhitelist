@@ -14,9 +14,9 @@ plugins {
     id 'idea'
     id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id "com.gradleup.shadow" version "8.3.0"
 }
-apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.gradleup.shadow'
 apply plugin: 'org.spongepowered.mixin'
 
 
@@ -30,7 +30,7 @@ base {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
 }
 
 configurations {
@@ -86,7 +86,7 @@ repositories {
 dependencies {
     implementation project(path: ':common')
     shade project(path: ':common')
-    
+
     minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'

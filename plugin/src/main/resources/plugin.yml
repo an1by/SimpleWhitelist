@@ -1,7 +1,7 @@
 name: SimpleWhitelist
 version: '${version}'
 main: net.aniby.simplewhitelist.spigot.SimpleWhitelist
-api-version: 1.18
+api-version: 1.21
 prefix: SimpleWhitelist
 load: STARTUP
 authors: [An1by]

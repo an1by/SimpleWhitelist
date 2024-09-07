@@ -3,7 +3,7 @@
     "minVersion": "0.8",
     "package": "net.aniby.simplewhitelist.forge.mixin",
     "refmap": "simplewhitelist.refmap.json",
-    "compatibilityLevel": "JAVA_17",
+    "compatibilityLevel": "JAVA_21",
     "mixins": [
     ],
     "client": [
