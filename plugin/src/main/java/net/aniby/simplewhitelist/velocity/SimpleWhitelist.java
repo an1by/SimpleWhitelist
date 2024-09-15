@@ -3,7 +3,9 @@ package net.aniby.simplewhitelist.velocity;
 import com.google.inject.Inject;
 import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.command.CommandMeta;
+import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
@@ -49,12 +51,15 @@ public class SimpleWhitelist {
         commandManager.register(commandMeta, new WhitelistCommand(this));
     }
 
-    @Subscribe
-    public void onLogin(ServerPreConnectEvent event) {
-        Player player = event.getPlayer();
-        if (!whitelist.isWhitelisted(player.getUsername()))
-            player.disconnect(Component.text(
-                    configuration.getMessage("not_in_whitelist")
+    @Subscribe(order = PostOrder.FIRST)
+    public void onPreLogin(PreLoginEvent event) {
+        String username = event.getUsername();
+        if (!whitelist.isWhitelisted(username)) {
+            event.setResult(PreLoginEvent.PreLoginComponentResult.denied(
+                    Component.text(
+                            configuration.getMessage("not_in_whitelist")
+                    )
             ));
+        }
     }
 }
