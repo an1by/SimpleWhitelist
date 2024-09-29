@@ -1,7 +1,7 @@
 {
   "id": "simplewhitelist",
   "name": "SimpleWhitelist",
-  "version": "${version}",
+  "version": "<%=version%>",
   "description": "Very simple whitelist system for your server",
   "url": "https://modrinth.com/plugin/simplewhitelist",
   "authors": [

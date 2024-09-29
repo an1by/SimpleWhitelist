@@ -1,5 +1,5 @@
 name: SimpleWhitelist
-version: '${version}'
+version: '<%=version%>'
 main: net.aniby.simplewhitelist.spigot.SimpleWhitelist
 api-version: 1.21
 prefix: SimpleWhitelist

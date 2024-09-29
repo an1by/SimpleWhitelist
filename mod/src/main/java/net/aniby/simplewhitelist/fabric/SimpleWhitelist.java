@@ -4,6 +4,7 @@ import net.aniby.simplewhitelist.common.plugin.PluginConfiguration;
 import net.aniby.simplewhitelist.common.plugin.PluginWhitelist;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -28,6 +29,8 @@ public final class SimpleWhitelist implements DedicatedServerModInitializer {
         Path path = FabricLoader.getInstance().getGameDir().resolve("/config/SimpleWhitelist");
         whitelist = new PluginWhitelist(path);
         configuration = new PluginConfiguration(path);
+
+        
 
         CommandRegistrationCallback.EVENT.register(
                 (dispatcher, registryAccess, environment) -> WhitelistCommand.register(dispatcher, this)

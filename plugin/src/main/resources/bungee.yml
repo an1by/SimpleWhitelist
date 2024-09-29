@@ -1,5 +1,5 @@
 name: SimpleWhitelist
-version: '${version}'
+version: '<%=version%>'
 main: net.aniby.simplewhitelist.bungee.SimpleWhitelist
 author: An1by
 description: Very simple whitelist system for your server
