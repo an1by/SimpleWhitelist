@@ -6,10 +6,8 @@ import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
-import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
-import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.aniby.simplewhitelist.common.plugin.PluginConfiguration;
 import net.aniby.simplewhitelist.common.plugin.PluginWhitelist;
@@ -22,11 +20,11 @@ public class SimpleWhitelist {
     private PluginConfiguration configuration;
 
     public PluginWhitelist whitelist() {
-        return whitelist;
+        return this.whitelist;
     }
 
     public PluginConfiguration configuration() {
-        return configuration;
+        return this.configuration;
     }
 
     private final ProxyServer proxy;
@@ -40,10 +38,10 @@ public class SimpleWhitelist {
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-        whitelist = new PluginWhitelist(pluginFolder);
-        configuration = new PluginConfiguration(pluginFolder);
+        this.whitelist = new PluginWhitelist(this.pluginFolder);
+        this.configuration = new PluginConfiguration(this.pluginFolder);
 
-        CommandManager commandManager = proxy.getCommandManager();
+        CommandManager commandManager = this.proxy.getCommandManager();
         CommandMeta commandMeta = commandManager.metaBuilder("simplewhitelist")
                 .aliases("simplewl", "swl")
                 .plugin(this)
@@ -53,11 +51,10 @@ public class SimpleWhitelist {
 
     @Subscribe(order = PostOrder.FIRST)
     public void onPreLogin(PreLoginEvent event) {
-        String username = event.getUsername();
-        if (!whitelist.isWhitelisted(username)) {
+        if (this.configuration.isEnabled() && !this.whitelist.isWhitelisted(event.getUsername())) {
             event.setResult(PreLoginEvent.PreLoginComponentResult.denied(
                     Component.text(
-                            configuration.getMessage("not_in_whitelist")
+                            this.configuration.getMessage("not_in_whitelist")
                     )
             ));
         }

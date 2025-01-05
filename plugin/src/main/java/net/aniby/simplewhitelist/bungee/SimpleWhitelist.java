@@ -15,30 +15,30 @@ public final class SimpleWhitelist extends Plugin implements Listener {
     private PluginConfiguration configuration;
 
     public PluginWhitelist whitelist() {
-        return whitelist;
+        return this.whitelist;
     }
 
     public PluginConfiguration configuration() {
-        return configuration;
+        return this.configuration;
     }
 
     @Override
     public void onEnable() {
-        Path path = getDataFolder().toPath();
+        Path path = this.getDataFolder().toPath();
 
-        whitelist = new PluginWhitelist(path);
-        configuration = new PluginConfiguration(path);
+        this.whitelist = new PluginWhitelist(path);
+        this.configuration = new PluginConfiguration(path);
 
-        getProxy().getPluginManager().registerListener(this, this);
-        getProxy().getPluginManager().registerCommand(this, new WhitelistCommand(this));
+        this.getProxy().getPluginManager().registerListener(this, this);
+        this.getProxy().getPluginManager().registerCommand(this, new WhitelistCommand(this));
     }
 
     @EventHandler(priority = 5)
     public void onLogin(PreLoginEvent event) {
-        if (!whitelist.isWhitelisted(event.getConnection().getName())) {
-            event.setCancelReason(new ComponentBuilder(
-                    configuration.getMessage("not_in_whitelist")
-            ).create());
+        if (this.configuration.isEnabled() && !this.whitelist.isWhitelisted(event.getConnection().getName())) {
+            event.setReason(new ComponentBuilder(
+                    this.configuration.getMessage("not_in_whitelist")
+            ).build());
             event.setCancelled(true);
         }
     }

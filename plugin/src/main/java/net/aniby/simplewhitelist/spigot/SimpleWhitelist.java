@@ -16,24 +16,24 @@ public final class SimpleWhitelist extends JavaPlugin implements Listener {
     private PluginConfiguration configuration;
 
     public PluginWhitelist whitelist() {
-        return whitelist;
+        return this.whitelist;
     }
 
     public PluginConfiguration configuration() {
-        return configuration;
+        return this.configuration;
     }
 
     @Override
     public void onEnable() {
-        Path path = getDataFolder().toPath();
+        Path path = this.getDataFolder().toPath();
 
-        whitelist = new PluginWhitelist(path);
-        configuration = new PluginConfiguration(path);
+        this.whitelist = new PluginWhitelist(path);
+        this.configuration = new PluginConfiguration(path);
 
-        getServer().getPluginManager().registerEvents(this, this);
+        this.getServer().getPluginManager().registerEvents(this, this);
 
         WhitelistCommand whitelistCommand = new WhitelistCommand(this);
-        PluginCommand command = getServer().getPluginCommand("simplewhitelist");
+        PluginCommand command = this.getServer().getPluginCommand("simplewhitelist");
         assert command != null;
         command.setExecutor(whitelistCommand);
         command.setTabCompleter(whitelistCommand);
@@ -41,8 +41,11 @@ public final class SimpleWhitelist extends JavaPlugin implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerLogin(AsyncPlayerPreLoginEvent event) {
-        if (!whitelist.isWhitelisted(event.getName())) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST, configuration.getMessage("not_in_whitelist"));
+        if (this.configuration.isEnabled() && !this.whitelist.isWhitelisted(event.getName())) {
+            event.disallow(
+                    AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST,
+                    this.configuration.getMessage("not_in_whitelist")
+            );
         }
     }
 }

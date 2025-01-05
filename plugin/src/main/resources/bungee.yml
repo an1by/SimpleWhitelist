@@ -1,5 +1,5 @@
-name: SimpleWhitelist
-version: '<%=version%>'
+name: '<%=mod_name%>'
+version: '<%=mod_version%>'
 main: net.aniby.simplewhitelist.bungee.SimpleWhitelist
-author: An1by
-description: Very simple whitelist system for your server
+author: '<%=mod_authors%>'
+description: '<%=mod_description%>'

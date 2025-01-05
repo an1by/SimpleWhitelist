@@ -16,7 +16,7 @@ public class WhitelistCommand {
     public static void register(final CommandDispatcher<CommandSourceStack> dispatcher, SimpleWhitelist plugin) {
         PluginConfiguration configuration = plugin.configuration();
         PluginWhitelist whitelist = plugin.whitelist();
-        
+
         final LiteralArgumentBuilder<CommandSourceStack> builder =
                 Commands.literal("simplewhitelist")
                         .requires(source -> source.hasPermission(3))
@@ -118,7 +118,10 @@ public class WhitelistCommand {
                         });
         LiteralCommandNode<CommandSourceStack> command = dispatcher.register(builder);
         List.of("swl", "simplewl").forEach(c ->
-                dispatcher.register(Commands.literal(c).requires(source -> source.hasPermission(3)).redirect(command))
+                dispatcher.register(
+                        Commands.literal(c)
+                                .requires(source -> source.hasPermission(3))
+                                .redirect(command))
         );
     }
 }

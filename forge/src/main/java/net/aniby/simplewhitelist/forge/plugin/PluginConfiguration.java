@@ -10,11 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class PluginConfiguration implements SimpleConfiguration {
-    @Override
-    public ConfigurationObject getConfiguration() {
-        return object;
-    }
     private ConfigurationObject object = null;
+
     private final Path configFile;
 
     public PluginConfiguration(final Path pluginFolder) {
@@ -25,9 +22,13 @@ public class PluginConfiguration implements SimpleConfiguration {
             throw new RuntimeException(e);
         }
 
-        load();
+        this.load();
     }
 
+    @Override
+    public ConfigurationObject getConfiguration() {
+        return this.object;
+    }
 
     @Override
     public void setEnabled(boolean enabled) {
@@ -51,22 +52,10 @@ public class PluginConfiguration implements SimpleConfiguration {
     @Override
     public void save() {
         try {
-            String json = SimpleCore.GSON.toJson(object);
-            Files.writeString(configFile, json, StandardCharsets.UTF_8);
+            String json = SimpleCore.GSON.toJson(this.object);
+            Files.writeString(this.configFile, json, StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public String checkSubcommand(String subcommand, boolean permission) {
-        String subMessage = object.getCommandMessages().get(subcommand);
-        if (subMessage == null) {
-            return object.getMessages().get("invalid_arguments");
-        }
-
-        if (!permission) {
-            return object.getMessages().get("no_permission");
-        }
-        return null;
     }
 }

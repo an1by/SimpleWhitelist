@@ -12,23 +12,23 @@ import java.util.List;
 import java.util.UUID;
 
 public class PluginWhitelist implements WhitelistHandler {
-    // Utilities
     private static UUID getOfflineUUID(String name) {
         String requestString = "OfflinePlayer:" + name;
         return UUID.nameUUIDFromBytes(requestString.getBytes(StandardCharsets.UTF_8));
     }
+
     private static GameProfile createProfile(String name) {
         return new GameProfile(getOfflineUUID(name), name);
     }
+
     private static UserWhiteList getWhitelist() {
         return ServerLifecycleHooks.getCurrentServer().getPlayerList().getWhiteList();
     }
+
     public void reload() {
         ServerLifecycleHooks.getCurrentServer().getPlayerList().reloadWhiteList();
     }
 
-
-    // Logic
     @Override
     public boolean isWhitelisted(String playerName) {
         return getWhitelist().isWhiteListed(createProfile(playerName));

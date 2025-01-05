@@ -1,7 +1,7 @@
 package net.aniby.simplewhitelist.common.plugin;
 
 import net.aniby.simplewhitelist.common.SimpleCore;
-import net.aniby.simplewhitelist.common.entity.WhitelistConfiguration;
+import net.aniby.simplewhitelist.common.entity.BasicConfiguration;
 import net.aniby.simplewhitelist.common.entity.WhitelistHandler;
 
 import java.nio.charset.StandardCharsets;
@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PluginWhitelist implements WhitelistHandler, WhitelistConfiguration {
+public class PluginWhitelist implements WhitelistHandler, BasicConfiguration {
     private final Path whitelistFile;
     private final List<String> list = new ArrayList<>();
 
@@ -26,35 +26,31 @@ public class PluginWhitelist implements WhitelistHandler, WhitelistConfiguration
 
     @Override
     public boolean isWhitelisted(String playerName) {
-        return list.contains(playerName);
+        return this.list.contains(playerName);
     }
 
     @Override
     public void addWhitelist(String playerName) {
-        if (!isWhitelisted(playerName))
-            list.add(playerName);
+        if (!this.isWhitelisted(playerName)) {
+            this.list.add(playerName);
+        }
     }
 
     @Override
     public void removeWhitelist(String playerName) {
-        list.remove(playerName);
+        this.list.remove(playerName);
     }
 
     @Override
     public List<String> getWhitelisted() {
-        return list;
+        return this.list;
     }
 
     @Override
     public void load() {
         try {
-            list.clear();
-            list.addAll(
-                    Files.readAllLines(whitelistFile).stream()
-                            .map(String::strip)
-                            .filter(s -> !s.isEmpty())
-                            .toList()
-            );
+            this.list.clear();
+            this.list.addAll(Files.readAllLines(this.whitelistFile).stream().map(String::strip).filter(s -> !s.isEmpty()).toList());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -63,8 +59,8 @@ public class PluginWhitelist implements WhitelistHandler, WhitelistConfiguration
     @Override
     public void save() {
         try {
-            String string = String.join("\n", list);
-            Files.writeString(whitelistFile, string, StandardCharsets.UTF_8);
+            String string = String.join("\n", this.list);
+            Files.writeString(this.whitelistFile, string, StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

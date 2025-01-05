@@ -1,22 +1,20 @@
 {
   "schemaVersion": 1,
-  "id": "simplewhitelist",
-  "version": "${version}",
+  "id": "${mod_id}",
+  "version": "${mod_license}",
 
-  "name": "SimpleWhitelist",
-  "description": "Very simple whitelist system for your server",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
   "authors": [
-    "An1by"
+    "${mod_authors}"
   ],
   "contact": {
-    "sources": "https://github.com/an1by/SimpleWhitelist",
-    "issues": "https://github.com/an1by/SimpleWhitelist/issues",
-    "homepage": "http://aniby.net"
+    "sources": "${contact_sources}",
+    "issues": "${contact_issues}",
+    "homepage": "${contact_homepage}"
   },
-
-  "license": "All-Rights-Reserved",
+  "license": "${mod_license}",
   "icon": "assets/simplewhitelist/icon.png",
-
   "environment": "*",
   "entrypoints": {
     "server": [
@@ -35,11 +33,9 @@
   "custom": {
     "modmenu": {
       "links": {
-        "Modrinth": "https://modrinth.com/plugin/simplewhitelist",
-        "Support me": "https://www.donationalerts.com/r/aniby"
+        "Author's Twitch channel": "https://twitch.tv/an1byvt"
       },
       "update_checker": true
     }
   }
 }
- 

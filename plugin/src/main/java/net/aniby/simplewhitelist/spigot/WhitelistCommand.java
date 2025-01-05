@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WhitelistCommand implements CommandExecutor, TabCompleter {
-        private final SimpleWhitelist plugin;
+    private final SimpleWhitelist plugin;
 
     public WhitelistCommand(SimpleWhitelist plugin) {
         this.plugin = plugin;
@@ -21,8 +21,8 @@ public class WhitelistCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        PluginWhitelist whitelist = plugin.whitelist();
-        PluginConfiguration config = plugin.configuration();
+        PluginWhitelist whitelist = this.plugin.whitelist();
+        PluginConfiguration config = this.plugin.configuration();
         if (args.length >= 1) {
             String result = config.checkSubcommand(args[0], sender.hasPermission(SimpleCore.PERMISSION));
             if (result == null) {
@@ -79,8 +79,9 @@ public class WhitelistCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         List<String> list = new ArrayList<>();
-        if (sender.hasPermission(SimpleCore.PERMISSION))
-            list = plugin.configuration().getCompleter(plugin.whitelist(), args);
+        if (sender.hasPermission(SimpleCore.PERMISSION)) {
+            list = this.plugin.configuration().getCompleter(this.plugin.whitelist(), args);
+        }
         return list;
     }
 }

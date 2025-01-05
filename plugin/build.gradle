@@ -18,7 +18,7 @@ repositories {
     }
     maven {
         name = "sonatype-snapshots"
-        url = "https://oss.sonatype.org/content/repositories/snapshots"
+        url = "https://oss.sonatype.org/content/repositories/snapshots/"
     }
     maven {
         name = "papermc-repo"
@@ -52,10 +52,20 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 processResources {
-    inputs.property "version", version
+    var replaceProperties = [
+            mod_name         : project.mod_name,
+            mod_id           : mod_id,
+            mod_version      : project.project_version,
+            mod_authors      : project.mod_authors,
+            mod_description  : project.mod_description,
+            contact_homepage : project.contact_homepage
+    ]
+
+    inputs.properties replaceProperties
+
     filteringCharset "UTF-8"
     filesMatching(["**/bungee.yml", "**/plugin.yml", "**/velocity-plugin.json"]) {
-        expand "version": version
+        expand replaceProperties + [project: project]
     }
 }
 

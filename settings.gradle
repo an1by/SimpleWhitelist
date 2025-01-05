@@ -23,5 +23,5 @@ rootProject.name = 'SimpleWhitelist'
 
 include 'common'
 include 'plugin'
-include 'mod'
+include 'fabric'
 include 'forge'

@@ -23,16 +23,14 @@ public class WhitelistCommand implements SimpleCommand {
         CommandSource sender = invocation.source();
         String[] args = invocation.arguments();
 
-        PluginWhitelist whitelist = plugin.whitelist();
-        PluginConfiguration config = plugin.configuration();
+        PluginWhitelist whitelist = this.plugin.whitelist();
+        PluginConfiguration config = this.plugin.configuration();
         if (args.length >= 1) {
             String result = config.checkSubcommand(args[0], sender.hasPermission(SimpleCore.PERMISSION));
             if (result == null) {
                 String subMessage = config.getCommandMessage(args[0]);
                 switch (args[0]) {
-                    case "reload" -> {
-                        config.reload();
-                    }
+                    case "reload" -> config.reload();
                     case "add", "remove" -> {
                         if (args.length < 2) {
                             subMessage = config.getMessage("need_player");
@@ -85,7 +83,7 @@ public class WhitelistCommand implements SimpleCommand {
         List<String> list = new ArrayList<>();
         if (sender.hasPermission(SimpleCore.PERMISSION)) {
             String[] args = invocation.arguments();
-            list = plugin.configuration().getCompleter(plugin.whitelist(), args);
+            list = this.plugin.configuration().getCompleter(this.plugin.whitelist(), args);
         }
         return CompletableFuture.completedFuture(list);
     }

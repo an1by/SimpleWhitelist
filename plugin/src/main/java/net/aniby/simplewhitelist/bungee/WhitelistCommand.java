@@ -21,18 +21,16 @@ public class WhitelistCommand extends Command implements TabExecutor {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        PluginWhitelist whitelist = plugin.whitelist();
-        PluginConfiguration config = plugin.configuration();
-        if (args.length >= 1) {
+        PluginWhitelist whitelist = this.plugin.whitelist();
+        PluginConfiguration config = this.plugin.configuration();
+        if (1 <= args.length) {
             String result = config.checkSubcommand(args[0], sender.hasPermission(SimpleCore.PERMISSION));
-            if (result == null) {
+            if (null == result) {
                 String subMessage = config.getCommandMessage(args[0]);
                 switch (args[0]) {
-                    case "reload" -> {
-                        config.reload();
-                    }
+                    case "reload" -> config.reload();
                     case "add", "remove" -> {
-                        if (args.length < 2) {
+                        if (2 > args.length) {
                             subMessage = config.getMessage("need_player");
                         } else {
                             String name = args[1];
@@ -81,7 +79,7 @@ public class WhitelistCommand extends Command implements TabExecutor {
     public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
         List<String> list = new ArrayList<>();
         if (sender.hasPermission(SimpleCore.PERMISSION))
-            list = plugin.configuration().getCompleter(plugin.whitelist(), args);
+            list = this.plugin.configuration().getCompleter(this.plugin.whitelist(), args);
         return list;
     }
 }

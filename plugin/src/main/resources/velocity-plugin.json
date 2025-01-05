@@ -1,11 +1,11 @@
 {
-  "id": "simplewhitelist",
-  "name": "SimpleWhitelist",
-  "version": "<%=version%>",
-  "description": "Very simple whitelist system for your server",
-  "url": "https://modrinth.com/plugin/simplewhitelist",
+  "id": "<%=mod_id%>",
+  "name": "<%=mod_name%>",
+  "version": "<%=mod_version%>",
+  "description": "<%=mod_description%>",
+  "url": "<%=contact_homepage%>",
   "authors": [
-    "An1by"
+    "<%=mod_authors%>"
   ],
   "dependencies": [],
   "main": "net.aniby.simplewhitelist.velocity.SimpleWhitelist"

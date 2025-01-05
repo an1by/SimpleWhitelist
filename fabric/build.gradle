@@ -15,21 +15,31 @@ dependencies {
     shade project(path: ':common')
 
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
 processResources {
-    inputs.property "version", project.version
-    inputs.property "minecraft_version", project.minecraft_version
-    inputs.property "loader_version", project.loader_version
-    filteringCharset "UTF-8"
+    var replaceProperties = [
+            minecraft_version: project.minecraft_version,
+            loader_version   : project.loader_version,
+            mod_id           : mod_id,
+            mod_name         : project.mod_name,
+            mod_license      : project.mod_license,
+            mod_version      : project.project_version,
+            mod_authors      : project.mod_authors,
+            mod_description  : project.mod_description,
+            contact_sources  : project.contact_sources,
+            contact_issues   : project.contact_issues,
+            contact_homepage : project.contact_homepage
+    ]
 
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version,
-                "minecraft_version": project.minecraft_version,
-                "loader_version": project.loader_version
+    inputs.properties replaceProperties
+
+    filteringCharset "UTF-8"
+    filesMatching(['fabric.mod.json']) {
+        expand replaceProperties + [project: project]
     }
 }
 
@@ -40,8 +50,6 @@ tasks.withType(JavaCompile).configureEach {
         it.options.release = targetJavaVersion
     }
 }
-
-
 
 jar {
     configurations.shade.each { dep ->

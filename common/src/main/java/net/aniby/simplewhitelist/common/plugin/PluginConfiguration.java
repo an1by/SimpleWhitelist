@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 public class PluginConfiguration implements SimpleConfiguration {
     private ConfigurationObject object = null;
+
     private final Path configFile;
 
     public PluginConfiguration(final Path pluginFolder) {
@@ -23,22 +24,22 @@ public class PluginConfiguration implements SimpleConfiguration {
             throw new RuntimeException(e);
         }
 
-        load();
+        this.load();
     }
 
     @Override
     public ConfigurationObject getConfiguration() {
-        return object;
+        return this.object;
     }
 
     @Override
     public void setEnabled(boolean enabled) {
-        object.setEnabled(enabled);
+        this.object.setEnabled(enabled);
     }
 
     @Override
     public boolean isEnabled() {
-        return object.isEnabled();
+        return this.object.isEnabled();
     }
 
     @Override
@@ -53,8 +54,8 @@ public class PluginConfiguration implements SimpleConfiguration {
     @Override
     public void save() {
         try {
-            String json = SimpleCore.GSON.toJson(object);
-            Files.writeString(configFile, json, StandardCharsets.UTF_8);
+            String json = SimpleCore.GSON.toJson(this.object);
+            Files.writeString(this.configFile, json, StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -63,7 +64,7 @@ public class PluginConfiguration implements SimpleConfiguration {
     public List<String> getCompleter(WhitelistHandler whitelistHandler, String[] args) {
         List<String> list = new ArrayList<>();
         switch (args.length) {
-            case 0, 1 -> list = object.getCommandMessages().keySet().stream().filter(
+            case 0, 1 -> list = this.object.getCommandMessages().keySet().stream().filter(
                     n -> args.length == 0 || n.startsWith(args[0])
             ).collect(Collectors.toList());
             case 2 -> {
@@ -78,13 +79,13 @@ public class PluginConfiguration implements SimpleConfiguration {
     }
 
     public String checkSubcommand(String subcommand, boolean permission) {
-        String subMessage = object.getCommandMessages().get(subcommand);
+        String subMessage = this.object.getCommandMessages().get(subcommand);
         if (subMessage == null) {
-            return object.getMessages().get("invalid_arguments");
+            return this.object.getMessages().get("invalid_arguments");
         }
 
         if (!permission) {
-            return object.getMessages().get("no_permission");
+            return this.object.getMessages().get("no_permission");
         }
         return null;
     }

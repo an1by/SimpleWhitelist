@@ -9,12 +9,13 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber
 public class CommandRegistrationHandler {
     private final SimpleWhitelist plugin;
+
     public CommandRegistrationHandler(SimpleWhitelist plugin) {
         this.plugin = plugin;
     }
 
     @SubscribeEvent
     public void registerCommands(RegisterCommandsEvent event) {
-        WhitelistCommand.register(event.getDispatcher(), plugin);
+        WhitelistCommand.register(event.getDispatcher(), this.plugin);
     }
 }

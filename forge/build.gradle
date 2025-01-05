@@ -1,6 +1,5 @@
 buildscript {
     repositories {
-        // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         mavenCentral()
     }
@@ -18,7 +17,6 @@ plugins {
 }
 apply plugin: 'com.gradleup.shadow'
 apply plugin: 'org.spongepowered.mixin'
-
 
 group = project.mod_group_id
 version = project.project_version
@@ -39,7 +37,7 @@ configurations {
 }
 
 minecraft {
-    mappings channel: project.mapping_channel, version: project.mapping_version
+    mappings channel: project.forge_mapping_channel, version: project.forge_mapping_version
 
     copyIdeResources = true
 
@@ -92,17 +90,25 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
-tasks.named('processResources', ProcessResources).configure {
+processResources {
     var replaceProperties = [
-            minecraft_version   : project.forge_minecraft_version, minecraft_version_range: project.minecraft_version_range,
-            forge_version       : project.forge_version, forge_version_range: project.forge_version_range,
-            loader_version_range: project.loader_version_range,
-            mod_id              : mod_id, mod_name: project.mod_name, mod_license: project.mod_license, mod_version: project.project_version,
-            mod_authors         : project.mod_authors, mod_description: project.mod_description,
+            minecraft_version      : project.forge_minecraft_version,
+            minecraft_version_range: project.minecraft_version_range,
+            forge_version          : project.forge_version,
+            forge_version_range    : project.forge_version_range,
+            loader_version_range   : project.loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : project.mod_name,
+            mod_license            : project.mod_license,
+            mod_version            : project.project_version,
+            mod_authors            : project.mod_authors,
+            mod_description        : project.mod_description,
+            contact_homepage       : project.contact_homepage
     ]
 
     inputs.properties replaceProperties
 
+    filteringCharset "UTF-8"
     filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
         expand replaceProperties + [project: project]
     }
@@ -139,9 +145,7 @@ sourceSets.each {
 }
 
 shadowJar {
-//    classifier = ''
     configurations = [project.configurations.shade]
-//    relocate 'com.google', "${project.group}.shadow.com.google"
     relocate 'org.aopalliance', "${project.group}.shadow.org.aopalliance"
     relocate "javax.inject", "${project.group}.shadow.javax.inject"
     exclude "net.aniby.simplewhitelist.common.plugin"
@@ -152,5 +156,7 @@ shadowJar {
 reobf {
     shadowJar {}
 }
+
 tasks.build.dependsOn reobfShadowJar
+
 jar.finalizedBy('reobfShadowJar')
