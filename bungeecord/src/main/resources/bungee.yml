@@ -1,0 +1,5 @@
+name: 'SimpleWhitelist'
+version: '<%=mod_version%>'
+main: net.aniby.simplewhitelist.BungeeWhitelistPlugin
+author: 'An1by'
+description: 'Simple whitelist system for your server'

@@ -1,162 +1,48 @@
-buildscript {
-    repositories {
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
-    }
-}
-
 plugins {
-    id 'eclipse'
-    id 'idea'
-    id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
-    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
-    id "com.gradleup.shadow" version "8.3.0"
-}
-apply plugin: 'com.gradleup.shadow'
-apply plugin: 'org.spongepowered.mixin'
-
-group = project.mod_group_id
-version = project.project_version
-
-var mod_id = project.mod_id
-
-base {
-    archivesName = mod_id
+    id 'net.minecraftforge.gradle' version "${forgegradle_version}"
+    id 'org.spongepowered.mixin' version "${mixingradle_version}"
 }
 
-java {
-    toolchain.languageVersion = JavaLanguageVersion.of(21)
-}
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.matthewprenger.cursegradle'
+apply plugin: 'com.modrinth.minotaur'
+apply plugin: 'mod-update'
 
-configurations {
-    shade
-    compile.extendsFrom shade
-}
+apply from: "https://raw.githubusercontent.com/henkelmax/mod-gradle-scripts/${mod_gradle_script_version}/mod.gradle"
 
-minecraft {
-    mappings channel: project.forge_mapping_channel, version: project.forge_mapping_version
-
-    copyIdeResources = true
-
-    runs {
-        configureEach {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-        }
-
-        client {
-            property 'forge.enabledGameTestNamespaces', mod_id
-        }
-
-        server {
-            property 'forge.enabledGameTestNamespaces', mod_id
-            args '--nogui'
-        }
-
-        gameTestServer {
-            property 'forge.enabledGameTestNamespaces', mod_id
-        }
-
-        data {
-            workingDirectory project.file('run-data')
-
-            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-        }
+processResources {
+    filesMatching('**/*.toml') {
+        expand 'mod_version': mod_version,
+                'forge_dependency': forge_dependency,
+                'minecraft_version': minecraft_version
     }
 }
-
-mixin {
-    add sourceSets.main, "${mod_id}.refmap.json"
-
-    config "${mod_id}.mixins.json"
-}
-
-sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
-    mavenLocal()
+    maven { url = 'https://maven.shedaniel.me/' }
 }
 
 dependencies {
-    implementation project(path: ':common')
-    shade project(path: ':common')
+    implementation 'org.jetbrains:annotations:23.0.0'
 
-    minecraft "net.minecraftforge:forge:${project.forge_minecraft_version}-${project.forge_version}"
-
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
 }
 
-processResources {
-    var replaceProperties = [
-            minecraft_version      : project.forge_minecraft_version,
-            minecraft_version_range: project.minecraft_version_range,
-            forge_version          : project.forge_version,
-            forge_version_range    : project.forge_version_range,
-            loader_version_range   : project.loader_version_range,
-            mod_id                 : mod_id,
-            mod_name               : project.mod_name,
-            mod_license            : project.mod_license,
-            mod_version            : project.project_version,
-            mod_authors            : project.mod_authors,
-            mod_description        : project.mod_description,
-            contact_homepage       : project.contact_homepage
-    ]
-
-    inputs.properties replaceProperties
-
-    filteringCharset "UTF-8"
-    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
-        expand replaceProperties + [project: project]
-    }
+tasks.register('generateJava', Copy) {
+    from project(':common').file('src/template/java')
+    into "${layout.buildDirectory.asFile.get()}/generated/java"
+    expand 'minecraft_version': minecraft_version
 }
-
-tasks.named('jar', Jar).configure {
-    manifest {
-        attributes([
-                "Specification-Title"     : mod_id,
-                "Specification-Vendor"    : project.mod_authors,
-                "Specification-Version"   : "1", // We are version 1 of ourselves
-                "Implementation-Title"    : project.mod_name,
-                "Implementation-Version"  : project.jar.archiveVersion,
-                "Implementation-Vendor"   : project.mod_authors,
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
-
-    finalizedBy 'reobfJar'
-
-    archiveBaseName.set("SimpleWhitelist")
-    archiveClassifier.set("")
-    archiveAppendix.set("Forge")
+sourceSets.main.java {
+    srcDir "${layout.buildDirectory.asFile.get()}/generated/java"
 }
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
-}
-
-sourceSets.each {
-    def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
-    it.output.resourcesDir = dir
-    it.java.destinationDirectory = dir
-}
+compileJava.dependsOn generateJava
 
 shadowJar {
-    configurations = [project.configurations.shade]
     relocate 'org.aopalliance', "${project.group}.shadow.org.aopalliance"
     relocate "javax.inject", "${project.group}.shadow.javax.inject"
     exclude "net.aniby.simplewhitelist.common.plugin"
     exclude "whitelist.txt"
     exclude "default_config.json"
+    exclude 'natives/*-x86/*'
 }
-
-reobf {
-    shadowJar {}
-}
-
-tasks.build.dependsOn reobfShadowJar
-
-jar.finalizedBy('reobfShadowJar')

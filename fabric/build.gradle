@@ -1,68 +1,40 @@
-plugins {
-    id 'fabric-loom' version '1.7-SNAPSHOT'
+apply plugin: 'fabric-loom'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.matthewprenger.cursegradle'
+apply plugin: 'com.modrinth.minotaur'
+apply plugin: 'mod-update'
+
+apply from: "https://raw.githubusercontent.com/henkelmax/mod-gradle-scripts/${mod_gradle_script_version}/mod.gradle"
+
+processResources {
+    filesMatching('fabric.mod.json') {
+        expand 'java_version': java_version,
+                'mod_version': mod_version,
+                'minecraft_version': minecraft_version,
+                'fabric_api_dependency_breaks': fabric_api_dependency_breaks,
+                'fabric_loader_dependency': fabric_loader_dependency
+    }
 }
 
-version = project.project_version
-group = project.group
-
-configurations {
-    shade
-    compile.extendsFrom shade
+repositories {
+    maven { url = 'https://maven.shedaniel.me/' }
 }
 
 dependencies {
-    implementation project(path: ':common')
-    shade project(path: ':common')
+    implementation 'org.jetbrains:annotations:23.0.0'
 
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modImplementation "me.lucko:fabric-permissions-api:${fabric_permission_api_version}"
 }
-
-processResources {
-    var replaceProperties = [
-            minecraft_version: project.minecraft_version,
-            loader_version   : project.loader_version,
-            mod_id           : mod_id,
-            mod_name         : project.mod_name,
-            mod_license      : project.mod_license,
-            mod_version      : project.project_version,
-            mod_authors      : project.mod_authors,
-            mod_description  : project.mod_description,
-            contact_sources  : project.contact_sources,
-            contact_issues   : project.contact_issues,
-            contact_homepage : project.contact_homepage
-    ]
-
-    inputs.properties replaceProperties
-
-    filteringCharset "UTF-8"
-    filesMatching(['fabric.mod.json']) {
-        expand replaceProperties + [project: project]
-    }
+tasks.register('generateJava', Copy) {
+    from project(':common').file('src/template/java')
+    into "${layout.buildDirectory.asFile.get()}/generated/java"
+    expand 'minecraft_version': minecraft_version
 }
-
-def targetJavaVersion = 21
-tasks.withType(JavaCompile).configureEach {
-    it.options.encoding = "UTF-8"
-    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-        it.options.release = targetJavaVersion
-    }
+sourceSets.main.java {
+    srcDir "${layout.buildDirectory.asFile.get()}/generated/java"
 }
+compileJava.dependsOn generateJava
 
-jar {
-    configurations.shade.each { dep ->
-        duplicatesStrategy = DuplicatesStrategy.WARN
-        from(project.zipTree(dep)) {
-            exclude 'META-INF/MANIFEST.MF', 'module-info.class'
-        }
-    }
-}
-
-remapJar {
-    archiveBaseName.set("SimpleWhitelist")
-    archiveClassifier.set("")
-    archiveAppendix.set("FabricQuilt")
-    archiveVersion.set(String.format("%s_%s", version, project.minecraft_version))
+shadowJar {
+    exclude 'natives/*-x86/*'
 }

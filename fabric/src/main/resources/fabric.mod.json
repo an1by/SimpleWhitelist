@@ -1,41 +1,38 @@
 {
   "schemaVersion": 1,
-  "id": "${mod_id}",
-  "version": "${mod_license}",
-
-  "name": "${mod_name}",
-  "description": "${mod_description}",
+  "id": "simplewhitelist",
+  "version": "${mod_version}",
+  "name": "SimpleWhitelist",
+  "description": "Simple whitelist system for your server",
   "authors": [
-    "${mod_authors}"
+    "An1by"
   ],
   "contact": {
-    "sources": "${contact_sources}",
-    "issues": "${contact_issues}",
-    "homepage": "${contact_homepage}"
+    "sources": "https://github.com/an1by/SimpleWhitelist",
+    "issues": "https://github.com/an1by/SimpleWhitelist/issues",
+    "homepage": "https://modrinth.com/plugin/simplewhitelist"
   },
-  "license": "${mod_license}",
+  "license": "All Rights Reserved",
   "icon": "assets/simplewhitelist/icon.png",
   "environment": "*",
   "entrypoints": {
     "server": [
-      "net.aniby.simplewhitelist.fabric.SimpleWhitelist"
+      "net.aniby.simplewhitelist.fabric.FabricWhitelistMod"
     ]
   },
   "depends": {
-    "fabricloader": ">=${loader_version}",
+    "fabricloader": "${fabric_loader_dependency}",
     "fabric": "*",
-    "minecraft": ">=${minecraft_version}",
+    "minecraft": [
+      "1.21",
+      "1.21.1"
+    ],
     "java": ">=21"
   },
-  "suggests": {
-    "modmenu": "*"
+  "breaks": {
+    "fabric-api": "${fabric_api_dependency_breaks}"
   },
-  "custom": {
-    "modmenu": {
-      "links": {
-        "Author's Twitch channel": "https://twitch.tv/an1byvt"
-      },
-      "update_checker": true
-    }
+  "suggests": {
+    "fabric-permissions-api-v0": "*"
   }
 }

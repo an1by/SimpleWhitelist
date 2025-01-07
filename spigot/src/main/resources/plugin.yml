@@ -1,0 +1,18 @@
+name: 'simplewhitelist'
+version: '<%=mod_version%>'
+main: net.aniby.simplewhitelist.SimpleWhitelist
+api-version: 1.13
+prefix: 'SimpleWhitelist'
+load: STARTUP
+description: "Simple whitelist system for your server"
+website: "https://modrinth.com/plugin/simplewhitelist"
+authors: ["An1by"]
+folia-supported: true
+
+commands:
+  simplewhitelist:
+    description: Manage simple whitelist
+    usage: Invalid command syntax
+    aliases:
+      - simplewl
+      - swl
