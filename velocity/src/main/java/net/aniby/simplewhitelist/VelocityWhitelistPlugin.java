@@ -28,8 +28,6 @@ import java.util.logging.Logger;
 public class VelocityWhitelistPlugin implements WhitelistProxy {
     public static final String MOD_ID = "simplewhitelist";
 
-    @Inject public Logger logger;
-
     private PluginWhitelist whitelist;
     private PluginConfiguration configuration;
 
