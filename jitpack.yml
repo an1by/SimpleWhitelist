@@ -1,0 +1,4 @@
+jdk:
+  - openjdk21
+gradle:
+  wrapper: true

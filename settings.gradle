@@ -13,6 +13,6 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'SimpleWhitelist'
+rootProject.name = mod_display_name
 
 include('api', 'common', 'common-proxy', 'fabric', 'forge', 'velocity', 'bungeecord', 'spigot')
