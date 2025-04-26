@@ -1,4 +1,4 @@
-## Beta 1.0.0
+## Beta 1.0.1
 - `/swl enable` & `/swl disable` works now
 - Spigot and Proxy plugin versions separated
 - Multi-loader configured *(reconfigured gradle at all)*

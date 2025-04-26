@@ -1,4 +1,10 @@
 <a href='https://modrinth.com/plugin/simplewhitelist' target="_blank"><img alt='Modrinth' src='https://img.shields.io/modrinth/dt/mGVcEBwo?style=for-the-badge&logo=modrinth&label=Modrinth&labelColor=black&color=0037FF'/></a>
+![Spigot](https://img.shields.io/badge/Spigot-orange?style=for-the-badge&logo=spigotmc)
+![Fabric](https://img.shields.io/badge/Fabric-5C6BC0?style=for-the-badge&logo=fabric)
+![Forge](https://img.shields.io/badge/Forge-333333?style=for-the-badge&logo=minecraft)
+![Velocity](https://img.shields.io/badge/Velocity-red?style=for-the-badge&logo=velocity)
+![BungeeCord](https://img.shields.io/badge/BungeeCord-00BFFF?style=for-the-badge&logo=bungee)
+
 
 #### Download the newest plugin version on [Modrinth](https://modrinth.com/plugin/simplewhitelist)!
 
@@ -52,7 +58,7 @@ Keep unwanted players out — with style. 😎
 ## 🔧 For Developers
 
 ## Import 👇
-[![](https://jitpack.io/v/an1by/SimpleWhitelist.svg)](https://jitpack.io/#an1by/SimpleWhitelist)
+[![](https://jitpack.io/v/an1by/SimpleWhitelist.svg?style=flat-square)](https://jitpack.io/#an1by/SimpleWhitelist)
 
 
 ### Don't forget to add the dependency to your `plugin.yml` / `mods.toml` / `fabric.mod.json` / `velocity-plugin.json`
@@ -66,7 +72,7 @@ maven:
 ```
 ```xml
 <dependency>
-    <groupId>com.github.an1by</groupId>
+    <groupId>net.aniby</groupId>
     <artifactId>SimpleWhitelist</artifactId>
 	<version>(release/commit)</version>
 	<scope>provided</scope>
@@ -81,7 +87,7 @@ repositories {
 ```
 ```css
 dependencies {
-	implementation 'com.github.an1by:SimpleWhitelist:(release/commit)'
+	implementation 'net.aniby:SimpleWhitelist:(release/commit)'
 }
 ```
 

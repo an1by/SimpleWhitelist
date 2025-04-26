@@ -14,6 +14,18 @@ repositories {
     mavenCentral()
 }
 
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'net.aniby'
+            artifactId = 'simplewhitelist'
+            version = this.version
+
+            from components.java
+        }
+    }
+}
+
 dependencies {
     compileOnly 'com.google.code.gson:gson:2.10'
 }
