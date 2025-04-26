@@ -9,6 +9,7 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
+import net.aniby.simplewhitelist.api.entity.WhitelistHandler;
 import net.aniby.simplewhitelist.api.plugin.PluginConfiguration;
 import net.aniby.simplewhitelist.api.plugin.PluginWhitelist;
 import net.kyori.adventure.text.Component;
@@ -54,13 +55,13 @@ public class VelocityWhitelistPlugin implements WhitelistProxy {
     public void onProxyInitialization(ProxyInitializeEvent event) {
         this.whitelist = new PluginWhitelist(this.pluginFolder.resolve("whitelist.txt"));
         this.configuration = new PluginConfiguration(this.pluginFolder.resolve("config.json"));
-
         CommandManager commandManager = this.proxy.getCommandManager();
         CommandMeta commandMeta = commandManager.metaBuilder("simplewhitelist")
                 .aliases("simplewl", "swl")
                 .plugin(this)
                 .build();
         commandManager.register(commandMeta, new VelocityWhitelistCommand(this));
+        WhitelistHandler.Api.instance = getWhitelist();
     }
 
     @Subscribe(priority = 1)

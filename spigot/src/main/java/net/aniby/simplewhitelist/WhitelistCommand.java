@@ -20,8 +20,8 @@ public class WhitelistCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        PluginWhitelist whitelist = this.plugin.whitelist();
-        PluginConfiguration config = this.plugin.configuration();
+        PluginWhitelist whitelist = this.plugin.getWhitelist();
+        PluginConfiguration config = this.plugin.getConfiguration();
         if (args.length >= 1) {
             String result = config.checkSubcommand(args[0], sender.hasPermission(WhitelistCore.COMMAND_PERMISSION));
             if (result == null) {
@@ -79,7 +79,7 @@ public class WhitelistCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> list = new ArrayList<>();
         if (sender.hasPermission(WhitelistCore.COMMAND_PERMISSION)) {
-            list = this.plugin.configuration().getCompleter(this.plugin.whitelist(), args);
+            list = this.plugin.getConfiguration().getCompleter(this.plugin.getWhitelist(), args);
         }
         return list;
     }

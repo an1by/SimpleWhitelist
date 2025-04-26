@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import net.aniby.simplewhitelist.api.Whitelist;
 import net.aniby.simplewhitelist.api.plugin.PluginConfiguration;
 import net.aniby.simplewhitelist.api.plugin.PluginWhitelist;
 import net.minecraft.commands.CommandSourceStack;
@@ -13,7 +14,7 @@ import net.minecraft.network.chat.Component;
 import java.util.List;
 
 public class WhitelistCommand {
-    public static void register(final CommandDispatcher<CommandSourceStack> dispatcher, WhitelistMod plugin) {
+    public static void register(final CommandDispatcher<CommandSourceStack> dispatcher, Whitelist plugin) {
         PluginConfiguration configuration = plugin.getConfiguration();
         PluginWhitelist whitelist = plugin.getWhitelist();
 

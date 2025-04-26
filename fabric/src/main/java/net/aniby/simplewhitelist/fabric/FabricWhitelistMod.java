@@ -1,7 +1,8 @@
 package net.aniby.simplewhitelist.fabric;
 
+import net.aniby.simplewhitelist.api.Whitelist;
 import net.aniby.simplewhitelist.WhitelistCommand;
-import net.aniby.simplewhitelist.WhitelistMod;
+import net.aniby.simplewhitelist.api.entity.WhitelistHandler;
 import net.aniby.simplewhitelist.api.plugin.PluginConfiguration;
 import net.aniby.simplewhitelist.api.plugin.PluginWhitelist;
 import net.fabricmc.api.DedicatedServerModInitializer;
@@ -13,7 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 import java.nio.file.Path;
 
-public final class FabricWhitelistMod extends WhitelistMod implements DedicatedServerModInitializer {
+public final class FabricWhitelistMod implements DedicatedServerModInitializer, Whitelist {
     private PluginWhitelist whitelist;
 
     private PluginConfiguration configuration;
@@ -43,7 +44,6 @@ public final class FabricWhitelistMod extends WhitelistMod implements DedicatedS
                 (dispatcher, registryAccess, environment) ->
                         WhitelistCommand.register(dispatcher, this)
         );
-
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayer player = handler.getPlayer();
             String name = player.getName().getString();
@@ -53,5 +53,6 @@ public final class FabricWhitelistMod extends WhitelistMod implements DedicatedS
                 ));
             }
         });
+        WhitelistHandler.Api.instance = getWhitelist();
     }
 }

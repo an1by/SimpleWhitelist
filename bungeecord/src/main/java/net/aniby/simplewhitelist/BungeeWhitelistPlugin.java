@@ -1,5 +1,6 @@
 package net.aniby.simplewhitelist;
 
+import net.aniby.simplewhitelist.api.entity.WhitelistHandler;
 import net.aniby.simplewhitelist.api.plugin.PluginConfiguration;
 import net.aniby.simplewhitelist.api.plugin.PluginWhitelist;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -33,6 +34,7 @@ public final class BungeeWhitelistPlugin extends Plugin implements Listener, Whi
 
         this.getProxy().getPluginManager().registerListener(this, this);
         this.getProxy().getPluginManager().registerCommand(this, new BungeeWhitelistCommand(this));
+        WhitelistHandler.Api.instance = getWhitelist();
     }
 
     @EventHandler(priority = 5)

@@ -35,6 +35,9 @@ tasks {
     runVelocity {
         velocityVersion('3.3.0-SNAPSHOT')
     }
+    compileJava {
+        dependsOn project(':common-proxy').tasks.named('shadowJar')
+    }
 }
 
 compileJava.dependsOn generateJava

@@ -1,5 +1,7 @@
 package net.aniby.simplewhitelist;
 
+import net.aniby.simplewhitelist.api.Whitelist;
+import net.aniby.simplewhitelist.api.entity.WhitelistHandler;
 import net.aniby.simplewhitelist.event.CommandRegistrationHandler;
 import net.aniby.simplewhitelist.plugin.ForgePluginConfiguration;
 import net.aniby.simplewhitelist.plugin.ForgePluginWhitelist;
@@ -12,7 +14,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import java.nio.file.Path;
 
 @Mod(ForgeWhitelistMod.MOD_ID)
-public class ForgeWhitelistMod extends WhitelistMod {
+public class ForgeWhitelistMod implements Whitelist {
     public static final String MOD_ID = "simplewhitelist";
 
     private final ForgePluginWhitelist whitelist;
@@ -37,7 +39,7 @@ public class ForgeWhitelistMod extends WhitelistMod {
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.register(this);
-
         MinecraftForge.EVENT_BUS.register(new CommandRegistrationHandler(this));
+        WhitelistHandler.Api.instance = getWhitelist();
     }
 }
