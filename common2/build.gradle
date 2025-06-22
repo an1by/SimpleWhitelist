@@ -1,0 +1,27 @@
+apply plugin: 'com.gradleup.shadow'
+apply plugin: 'fabric-loom'
+
+apply from: "https://raw.githubusercontent.com/henkelmax/mod-gradle-scripts/${mod_gradle_script_version}/mod.gradle"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    modCompileOnly("net.kyori:adventure-platform-mod-shared-fabric-repack:6.4.0") 
+    compileOnly("net.kyori:adventure-platform-mod-shared:6.4.0")
+    modCompileOnly("org.yaml:snakeyaml:${snakeyaml_version}")
+    compileOnly("org.yaml:snakeyaml:${snakeyaml_version}")
+}
+
+sourceSets {
+    template {
+        java {
+            srcDir 'src/template/java'
+        }
+    }
+    main {
+        compileClasspath += sourceSets.template.output
+        runtimeClasspath += sourceSets.template.output
+    }
+}
