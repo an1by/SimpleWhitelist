@@ -1,0 +1,11 @@
+name: simplewhitelist
+prefix: simplewhitelist
+version: ${mod_version}
+main: net.aniby.simplewhitelist.PaperWhitelistPlugin
+bootstrapper: net.aniby.simplewhitelist.PaperWhitelistBootstrap
+api-version: ${minecraft_version}
+load: STARTUP
+description: Simple whitelist system for your server
+website: https://modrinth.com/plugin/simplewhitelist
+authors: ["An1by"]
+folia-supported: true

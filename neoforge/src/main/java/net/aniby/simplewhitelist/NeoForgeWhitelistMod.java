@@ -1,6 +1,8 @@
 package net.aniby.simplewhitelist;
 
-import net.aniby.simplewhitelist.api.plugin.PluginConfiguration;
+import net.aniby.simplewhitelist.api.WhitelistPlugin;
+import net.aniby.simplewhitelist.command.WhitelistCommand;
+import net.aniby.simplewhitelist.configuration.WhitelistConfiguration;
 import net.aniby.simplewhitelist.event.ServerPlayConnectionEvent;
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 import net.neoforged.bus.api.IEventBus;
@@ -18,17 +20,21 @@ import java.nio.file.Path;
 public class NeoForgeWhitelistMod implements WhitelistPlugin {
     public static final String MOD_ID = "simplewhitelist";
 
-    private final PluginConfiguration configuration;
+    private final WhitelistConfiguration configuration;
     private volatile MinecraftServerAudiences adventure;
 
     @Override
-    public PluginConfiguration getConfiguration() {
+    public WhitelistConfiguration getConfiguration() {
         return this.configuration;
+    }
+
+    public MinecraftServerAudiences getAdventure() {
+        return this.adventure;
     }
 
     public NeoForgeWhitelistMod(IEventBus eventBus) {
         Path path = FMLPaths.CONFIGDIR.get().resolve(MOD_ID);
-        this.configuration = new PluginConfiguration(
+        this.configuration = new WhitelistConfiguration(
                 path.resolve("config.yml"),
                 path.resolve("whitelist.txt")
         );
@@ -38,27 +44,29 @@ public class NeoForgeWhitelistMod implements WhitelistPlugin {
 
     @SubscribeEvent
     private void onConnect(ServerPlayConnectionEvent event) {
-        String name = event.getPlayer().getName().getString();
-        if (this.configuration.getConfigurationFile().isEnabled()
+        String name = event.getGameProfile().getName();
+        if (this.configuration.getSettings().isEnabled()
                 && !this.configuration.getWhitelist().contains(name)) {
-            event.getConnection().disconnect(this.adventure.asNative(
-                    this.configuration.getMessage("not_in_whitelist")
+            event.cancel(this.adventure.asNative(
+                    this.configuration.getMessage("notInWhitelist")
             ));
         }
     }
 
     @SubscribeEvent
-    private void onServerStarting(ServerStartingEvent event) {
+    public void onServerStarting(ServerStartingEvent event) {
         this.adventure = MinecraftServerAudiences.of(event.getServer());
     }
 
     @SubscribeEvent
-    private void onServerStop(ServerStoppedEvent event) {
+    public void onServerStop(ServerStoppedEvent event) {
         this.adventure = null;
     }
 
     @SubscribeEvent
-    private void onRegisterCommands(RegisterCommandsEvent event) {
-        WhitelistCommand.register(event.getDispatcher(), this);
+    public void onRegisterCommands(RegisterCommandsEvent event) {
+        new WhitelistCommand<>(
+                new NeoForgeCommandSourceExecutor(this), this
+        ).register(event.getDispatcher());
     }
 }

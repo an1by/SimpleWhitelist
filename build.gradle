@@ -1,10 +1,11 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version "${shadow_version}" apply false
+    id 'com.gradleup.shadow' version "${shadow_version}" apply false
     id 'com.matthewprenger.cursegradle' version "${cursegradle_version}" apply false
     id 'com.modrinth.minotaur' version "${minotaur_version}" apply false
     id 'mod-update' version "${mod_update_version}" apply false
     id 'fabric-loom' version "${fabric_loom_version}" apply false
     id 'io.papermc.hangar-publish-plugin' version "${hangar_publish_version}" apply false
+    id 'io.papermc.paperweight.userdev' version "${paperweight_version}" apply false
     id 'xyz.jpenilla.run-paper' version "${run_task_version}" apply false
 }
 
@@ -13,34 +14,40 @@ apply from: "https://raw.githubusercontent.com/henkelmax/mod-gradle-scripts/${mo
 tasks.register('01-publishBungeeCord') {
     group = 'simplewhitelist'
     doLast {
-        runGradleTasks(['common-proxy:clean', 'bungeecord:clean'], ['bungeecord:modrinth', 'bungeecord:publishAllPublicationsToHangar'])
+        runGradleTasks(['common:clean', 'bungeecord:clean'], ['bungeecord:modrinth', 'bungeecord:publishAllPublicationsToHangar'])
     }
 }
 
 tasks.register('02-publishVelocity') {
     group = 'simplewhitelist'
     doLast {
-        runGradleTasks(['common-proxy:clean', 'velocity:clean'], ['velocity:modrinth', 'velocity:publishAllPublicationsToHangar'])
+        runGradleTasks(['common:clean', 'velocity:clean'], ['velocity:modrinth', 'velocity:publishAllPublicationsToHangar'])
     }
 }
 
-tasks.register('03-publishSpigot') {
+tasks.register('03-publishPaper') {
     group = 'simplewhitelist'
     doLast {
-        runGradleTasks(['spigot:clean'], ['spigot:curseforge', 'spigot:modrinth', 'spigot:publishAllPublicationsToHangar'])
+        runGradleTasks(['common:clean'], ['paper:modrinth', 'paper:publishAllPublicationsToHangar'])
     }
 }
 
-tasks.register('04-publishForge') {
+tasks.register('04-publishNeoForge') {
     group = 'simplewhitelist'
     doLast {
-        runGradleTasks(['common:clean', 'forge:clean'], ['forge:curseforge', 'forge:modrinth', 'forge:modUpdate'])
+        runGradleTasks(['common:clean', 'neoforge:clean'], ['neoforge:modrinth'])
     }
 }
 
 tasks.register('05-publishFabric') {
     group = 'simplewhitelist'
     doLast {
-        runGradleTasks(['common:clean', 'fabric:clean'], ['fabric:curseforge', 'fabric:modrinth', 'fabric:modUpdate'])
+        runGradleTasks(['common:clean', 'fabric:clean'], ['fabric:modrinth'])
     }
 }
+
+//tasks.register('06-publishQuilt', GradleBuild) {
+//    group = 'simplewhitelist'
+//    dir = 'quilt'
+//    tasks = ['uploadMod']
+//}

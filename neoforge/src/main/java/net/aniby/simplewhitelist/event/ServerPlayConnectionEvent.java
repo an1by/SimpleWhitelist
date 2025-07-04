@@ -1,39 +1,35 @@
 package net.aniby.simplewhitelist.event;
 
-import net.minecraft.network.Connection;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.CommonListenerCookie;
+import com.mojang.authlib.GameProfile;
+import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.net.SocketAddress;
 
 public class ServerPlayConnectionEvent extends Event implements ICancellableEvent {
-    private final Connection connection;
-    private final ServerPlayer player;
-    private final CommonListenerCookie cookie;
-    private final CallbackInfo callbackInfo;
+    private final SocketAddress socketAddress;
+    private final GameProfile gameProfile;
+    private final CallbackInfoReturnable<Component> callback;
 
-    public ServerPlayConnectionEvent(Connection connection, ServerPlayer player, CommonListenerCookie cookie, CallbackInfo callbackInfo) {
-        this.connection = connection;
-        this.player = player;
-        this.cookie = cookie;
-        this.callbackInfo = callbackInfo;
+    public ServerPlayConnectionEvent(SocketAddress socketAddress, GameProfile gameProfile, CallbackInfoReturnable<Component> callback) {
+        this.socketAddress = socketAddress;
+        this.gameProfile = gameProfile;
+        this.callback = callback;
     }
 
-    public Connection getConnection() {
-        return this.connection;
+    public SocketAddress getSocketAddress() {
+        return this.socketAddress;
     }
 
-    public ServerPlayer getPlayer() {
-        return this.player;
+    public GameProfile getGameProfile() {
+        return this.gameProfile;
     }
 
-    public CommonListenerCookie getCookie() {
-        return this.cookie;
-    }
-
-    public void cancel() {
-        this.callbackInfo.cancel();
+    public void cancel(@Nullable Component component) {
+        this.callback.setReturnValue(component);
         ICancellableEvent.super.setCanceled(true);
     }
 }

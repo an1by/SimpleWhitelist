@@ -1,6 +1,7 @@
 package net.aniby.simplewhitelist;
 
-import net.aniby.simplewhitelist.api.plugin.PluginConfiguration;
+import net.aniby.simplewhitelist.api.WhitelistPlugin;
+import net.aniby.simplewhitelist.configuration.WhitelistConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -10,18 +11,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.nio.file.Path;
 
 public final class PaperWhitelistPlugin extends JavaPlugin implements Listener, WhitelistPlugin {
-    private PluginConfiguration configuration;
+    private WhitelistConfiguration configuration;
 
     @Override
-    public PluginConfiguration getConfiguration() {
+    public WhitelistConfiguration getConfiguration() {
         return this.configuration;
     }
 
     @Override
     public void onEnable() {
         Path path = this.getDataFolder().toPath();
-        this.configuration = new PluginConfiguration(
-                path.resolve("config.json"),
+        this.configuration = new WhitelistConfiguration(
+                path.resolve("config.yml"),
                 path.resolve("whitelist.txt")
         );
 
@@ -30,11 +31,11 @@ public final class PaperWhitelistPlugin extends JavaPlugin implements Listener, 
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerLogin(AsyncPlayerPreLoginEvent event) {
-        if (this.configuration.getConfigurationFile().isEnabled()
+        if (this.configuration.getSettings().isEnabled()
                 && !this.configuration.getWhitelist().contains(event.getName())) {
             event.disallow(
                     AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST,
-                    this.configuration.getMessage("not_in_whitelist")
+                    this.configuration.getMessage("notInWhitelist")
             );
         }
     }

@@ -13,16 +13,19 @@ logoFile = "icon.png"
 authors = "An1by"
 description = '''Simple whitelist system for your server'''
 
+[[mixins]]
+config="simplewhitelist.mixins.json"
+
 [[dependencies.simplewhitelist]]
 modId = "neoforge"
 type = "required"
 versionRange = "${neoforge_dependency}"
 ordering = "NONE"
-side = "BOTH"
+side = "SERVER"
 
 [[dependencies.simplewhitelist]]
 modId = "minecraft"
 mandatory = true
 versionRange = "[${minecraft_version}]"
 ordering = "NONE"
-side = "BOTH"
+side = "SERVER"

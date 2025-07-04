@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.gradleup.shadow'
 apply plugin: 'com.modrinth.minotaur'
 apply plugin: 'io.papermc.hangar-publish-plugin'
 
@@ -21,12 +21,17 @@ repositories {
 
 dependencies {
     compileOnly "net.md-5:bungeecord-api:${bungeecord_version}"
-
-    implementation 'com.google.code.gson:gson:2.10'
+    implementation "org.yaml:snakeyaml:${snakeyaml_version}"
+    implementation "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
+    shadow "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
+    implementation "net.kyori:adventure-platform-bungeecord:${adventure_platform}"
+    shadow "net.kyori:adventure-platform-bungeecord:${adventure_platform}"
+    implementation "com.mojang:brigadier:${mojang_brigadier}"
+    shadow "com.mojang:brigadier:${mojang_brigadier}"
 }
 
 tasks.register('generateJava', Copy) {
-    from project(':common-proxy').file('src/template/java')
+    from project(':common').file('src/template/java')
     into "${layout.buildDirectory.asFile.get()}/generated/java"
     expand 'mod_version': mod_version
 }
@@ -37,3 +42,6 @@ sourceSets.main.java {
 
 compileJava.dependsOn generateJava
 build.dependsOn shadowJar
+shadowJar {
+    relocate 'com.mojang.brigadier', 'shadow.com.mojang.brigadier'
+}

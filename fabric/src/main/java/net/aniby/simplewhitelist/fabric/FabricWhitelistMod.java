@@ -1,55 +1,50 @@
 package net.aniby.simplewhitelist.fabric;
 
-import net.aniby.simplewhitelist.WhitelistCommand;
-import net.aniby.simplewhitelist.WhitelistMod;
-import net.aniby.simplewhitelist.api.plugin.PluginConfiguration;
-import net.aniby.simplewhitelist.api.plugin.PluginWhitelist;
+import net.aniby.simplewhitelist.api.WhitelistPlugin;
+import net.aniby.simplewhitelist.command.WhitelistCommand;
+import net.aniby.simplewhitelist.configuration.WhitelistConfiguration;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.network.chat.Component;
+import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.nio.file.Path;
 
-public final class FabricWhitelistMod extends WhitelistMod implements DedicatedServerModInitializer {
-    private PluginWhitelist whitelist;
-
-    private PluginConfiguration configuration;
+public final class FabricWhitelistMod implements DedicatedServerModInitializer, WhitelistPlugin {
+    private volatile MinecraftServerAudiences adventure;
+    private WhitelistConfiguration configuration;
 
     @Override
-    public PluginConfiguration getConfiguration() {
+    public WhitelistConfiguration getConfiguration() {
         return this.configuration;
-    }
-
-    @Override
-    public PluginWhitelist getWhitelist() {
-        return this.whitelist;
     }
 
     @Override
     public void onInitializeServer() {
         Path path = FabricLoader.getInstance().getGameDir().resolve("/config/SimpleWhitelist");
-
-        System.out.println("created");
-        this.whitelist = new PluginWhitelist(path.resolve("whitelist.txt"));
-        this.configuration = new PluginConfiguration(path.resolve("config.json"));
-
-        System.out.println(this.getWhitelist());
-        System.out.println(this.getConfiguration());
-
-        CommandRegistrationCallback.EVENT.register(
-                (dispatcher, registryAccess, environment) ->
-                        WhitelistCommand.register(dispatcher, this)
+        this.configuration = new WhitelistConfiguration(
+                path.resolve("config.yml"),
+                path.resolve("whitelist.txt")
         );
 
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            new WhitelistCommand<>(new FabricCommandSourceExecutor(), this).register(dispatcher);
+        });
+
+        ServerLifecycleEvents.SERVER_STARTING.register(server ->
+                this.adventure = MinecraftServerAudiences.of(server));
+        ServerLifecycleEvents.SERVER_STOPPED.register(server ->
+                this.adventure = null);
+        ServerPlayConnectionEvents.INIT.register((handler, server) -> {
             ServerPlayer player = handler.getPlayer();
             String name = player.getName().getString();
-            if (this.configuration.isEnabled() && !this.whitelist.isWhitelisted(name)) {
-                player.connection.disconnect(Component.literal(
-                        this.configuration.getMessage("not_in_whitelist")
+            if (this.configuration.getSettings().isEnabled()
+                    && !this.configuration.getWhitelist().contains(name)) {
+                player.connection.disconnect(this.adventure.asNative(
+                        this.configuration.getMessage("notInWhitelist")
                 ));
             }
         });

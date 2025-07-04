@@ -1,6 +1,7 @@
 package net.aniby.simplewhitelist;
 
 import com.google.inject.Inject;
+import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.event.Subscribe;
@@ -9,35 +10,27 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
-import net.aniby.simplewhitelist.api.plugin.PluginConfiguration;
-import net.aniby.simplewhitelist.api.plugin.PluginWhitelist;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.aniby.simplewhitelist.api.WhitelistPlugin;
+import net.aniby.simplewhitelist.command.WhitelistCommand;
+import net.aniby.simplewhitelist.configuration.WhitelistConfiguration;
 
 import java.nio.file.Path;
-import java.util.logging.Logger;
 
 @Plugin(
         id = VelocityWhitelistPlugin.MOD_ID,
         name = "SimpleWhitelist",
-        version = WhitelistProxy.MOD_VERSION,
+        version = BuildConstants.MOD_VERSION,
         authors = {"An1by"},
         url = "https://github.com/an1by/SimpleWhitelist",
         description = "Simple whitelist system for your server"
 )
-public class VelocityWhitelistPlugin implements WhitelistProxy {
+public class VelocityWhitelistPlugin implements WhitelistPlugin {
     public static final String MOD_ID = "simplewhitelist";
 
-    private PluginWhitelist whitelist;
-    private PluginConfiguration configuration;
+    private WhitelistConfiguration configuration;
 
     @Override
-    public PluginWhitelist getWhitelist() {
-        return this.whitelist;
-    }
-
-    @Override
-    public PluginConfiguration getConfiguration() {
+    public WhitelistConfiguration getConfiguration() {
         return this.configuration;
     }
 
@@ -52,24 +45,29 @@ public class VelocityWhitelistPlugin implements WhitelistProxy {
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-        this.whitelist = new PluginWhitelist(this.pluginFolder.resolve("whitelist.txt"));
-        this.configuration = new PluginConfiguration(this.pluginFolder.resolve("config.json"));
+        this.configuration = new WhitelistConfiguration(
+                this.pluginFolder.resolve("config.yml"),
+                this.pluginFolder.resolve("whitelist.txt")
+        );
 
         CommandManager commandManager = this.proxy.getCommandManager();
         CommandMeta commandMeta = commandManager.metaBuilder("simplewhitelist")
                 .aliases("simplewl", "swl")
                 .plugin(this)
                 .build();
-        commandManager.register(commandMeta, new VelocityWhitelistCommand(this));
+        commandManager.register(commandMeta, new BrigadierCommand(
+                new WhitelistCommand<>(
+                        new VelocityCommandSourceExecutor(), this
+                ).builder()
+        ));
     }
 
     @Subscribe(priority = 1)
     public void onPreLogin(PreLoginEvent event) {
-        if (this.configuration.isEnabled() && !this.whitelist.isWhitelisted(event.getUsername())) {
+        if (this.configuration.getSettings().isEnabled()
+                && !this.configuration.getWhitelist().contains(event.getUsername())) {
             event.setResult(PreLoginEvent.PreLoginComponentResult.denied(
-                    LegacyComponentSerializer.legacySection().deserialize(
-                            this.configuration.getMessage("not_in_whitelist")
-                    )
+                    this.configuration.getMessage("notInWhitelist")
             ));
         }
     }

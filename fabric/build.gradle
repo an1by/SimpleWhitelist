@@ -1,5 +1,5 @@
 apply plugin: 'fabric-loom'
-apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.gradleup.shadow'
 apply plugin: 'com.matthewprenger.cursegradle'
 apply plugin: 'com.modrinth.minotaur'
 apply plugin: 'mod-update'
@@ -11,24 +11,29 @@ processResources {
         expand 'java_version': java_version,
                 'mod_version': mod_version,
                 'minecraft_version': minecraft_version,
-                'fabric_api_dependency_breaks': fabric_api_dependency_breaks,
-                'fabric_loader_dependency': fabric_loader_dependency
+                'minecraft_dependency': minecraft_dependency,
+                'fabric_loader_dependency': fabric_loader_dependency,
+                'fabric_api_dependency_breaks': fabric_api_dependency_breaks
     }
 }
 
 repositories {
     maven { url = 'https://maven.shedaniel.me/' }
+    maven { url = 'https://maven.terraformersmc.com/releases' }
+    maven { url = 'https://repo.viaversion.com/' }
 }
 
 dependencies {
-    implementation 'org.jetbrains:annotations:23.0.0'
-
-    modImplementation "me.lucko:fabric-permissions-api:${fabric_permission_api_version}"
+    modImplementation include("net.kyori:adventure-platform-fabric:${adventure_platform}")
+    modImplementation include("me.lucko:fabric-permissions-api:${fabric_permission_api_version}")
+    modImplementation include("org.yaml:snakeyaml:${snakeyaml_version}")
 }
+
 tasks.register('generateJava', Copy) {
     from project(':common').file('src/template/java')
     into "${layout.buildDirectory.asFile.get()}/generated/java"
-    expand 'minecraft_version': minecraft_version
+    expand 'minecraft_version': minecraft_version,
+            'mod_version': mod_version
 }
 sourceSets.main.java {
     srcDir "${layout.buildDirectory.asFile.get()}/generated/java"

@@ -4,6 +4,9 @@
   "package": "net.aniby.simplewhitelist.mixin",
   "compatibilityLevel": "JAVA_17",
   "refmap": "simplewhitelist.refmap.json",
+  "mixins": [
+    "PlayerListMixin"
+  ],
   "server": [
     "PlayerListMixin"
   ],

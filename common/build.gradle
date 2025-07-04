@@ -1,8 +1,34 @@
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'fabric-loom'
+plugins {
+    id 'java'
+}
 
-apply from: "https://raw.githubusercontent.com/henkelmax/mod-gradle-scripts/${mod_gradle_script_version}/mod.gradle"
+sourceCompatibility = JavaLanguageVersion.of(11)
+targetCompatibility = JavaLanguageVersion.of(11)
+archivesBaseName = archives_base_name
+version = mod_version
+group = maven_group
 
 repositories {
-    maven { url = 'https://maven.shedaniel.me/' }
+    mavenCentral()
+    maven {
+        url "https://libraries.minecraft.net"
+    }
+}
+
+dependencies {
+    compileOnly "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
+    compileOnly "org.yaml:snakeyaml:${snakeyaml_version}"
+    compileOnly "com.mojang:brigadier:${mojang_brigadier}"
+}
+
+sourceSets {
+    template {
+        java {
+            srcDir 'src/template/java'
+        }
+    }
+    main {
+        compileClasspath += sourceSets.template.output
+        runtimeClasspath += sourceSets.template.output
+    }
 }

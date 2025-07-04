@@ -15,4 +15,5 @@ pluginManagement {
 
 rootProject.name = 'SimpleWhitelist'
 
-include('api', 'common', 'common-proxy', 'fabric', 'forge', 'velocity', 'bungeecord', 'spigot')
+include('common', 'fabric', 'neoforge', 'velocity', 'bungeecord', 'paper')
+//include('api', 'common')
