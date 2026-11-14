@@ -1,0 +1,55 @@
+apply from: '../gradle-scripts/platform.gradle'
+
+sourceSets {
+    stubs {
+        java {
+            srcDir 'src/stubs/java'
+        }
+    }
+    main {
+        compileClasspath += sourceSets.stubs.output
+    }
+}
+
+tasks.named('compileStubsJava', JavaCompile).configure {
+    options.release = 8
+}
+
+processResources {
+    inputs.property('mod_version', mod_version)
+    filesMatching('META-INF/mods.toml') {
+        expand 'mod_version': mod_version
+    }
+}
+
+dependencies {
+    compileOnly "com.mojang:brigadier:${mojang_brigadier}"
+
+    implementation "org.yaml:snakeyaml:${snakeyaml_version}"
+    shadow "org.yaml:snakeyaml:${snakeyaml_version}"
+
+    implementation "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
+    shadow "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
+
+    implementation "net.kyori:adventure-text-serializer-gson:${adventure_minimessage_version}"
+    shadow "net.kyori:adventure-text-serializer-gson:${adventure_minimessage_version}"
+
+    implementation "net.kyori:adventure-text-serializer-legacy:${adventure_minimessage_version}"
+    shadow "net.kyori:adventure-text-serializer-legacy:${adventure_minimessage_version}"
+}
+
+shadowJar {
+    manifest {
+        attributes(
+                'Specification-Title': mod_display_name,
+                'Specification-Vendor': 'An1by',
+                'Specification-Version': '1',
+                'Implementation-Title': mod_display_name,
+                'Implementation-Version': mod_version,
+                'Implementation-Vendor': 'An1by',
+                'MixinConfigs': 'simplewhitelist.mixins.json'
+        )
+    }
+    relocate 'net.kyori', 'net.aniby.simplewhitelist.libs.kyori'
+    relocate 'org.yaml.snakeyaml', 'net.aniby.simplewhitelist.libs.snakeyaml'
+}

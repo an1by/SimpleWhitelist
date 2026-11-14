@@ -1,50 +1,55 @@
-plugins {
-    id 'net.neoforged.gradle.userdev' version "${neogradle_version}"
-    id 'net.neoforged.gradle.mixin' version "${neogradle_mixin_version}"
-}
+apply from: '../gradle-scripts/platform.gradle'
 
-apply plugin: 'com.gradleup.shadow'
-apply plugin: 'com.matthewprenger.cursegradle'
-apply plugin: 'com.modrinth.minotaur'
-
-apply from: "https://raw.githubusercontent.com/henkelmax/mod-gradle-scripts/${mod_gradle_script_version}/mod.gradle"
-
-processResources {
-    filesMatching('**/*.toml') {
-        expand 'mod_version': mod_version,
-                'neoforge_dependency': neoforge_dependency,
-                'minecraft_version': minecraft_version
+sourceSets {
+    stubs {
+        java {
+            srcDir 'src/stubs/java'
+        }
+    }
+    main {
+        compileClasspath += sourceSets.stubs.output
     }
 }
 
-repositories {
-    maven { url = 'https://maven.shedaniel.me/' }
+tasks.named('compileStubsJava', JavaCompile).configure {
+    options.release = 17
+}
+
+processResources {
+    inputs.property('mod_version', mod_version)
+    filesMatching(['META-INF/neoforge.mods.toml', 'META-INF/mods.toml']) {
+        expand 'mod_version': mod_version
+    }
 }
 
 dependencies {
-    implementation jarJar("net.kyori:adventure-platform-neoforge:${adventure_platform}")
+    compileOnly "com.mojang:brigadier:${mojang_brigadier}"
+
     implementation "org.yaml:snakeyaml:${snakeyaml_version}"
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    shadow "org.yaml:snakeyaml:${snakeyaml_version}"
+
+    implementation "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
+    shadow "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
+
+    implementation "net.kyori:adventure-text-serializer-gson:${adventure_minimessage_version}"
+    shadow "net.kyori:adventure-text-serializer-gson:${adventure_minimessage_version}"
+
+    implementation "net.kyori:adventure-text-serializer-legacy:${adventure_minimessage_version}"
+    shadow "net.kyori:adventure-text-serializer-legacy:${adventure_minimessage_version}"
 }
 
-runs {
-    configureEach {
-        dependencies {
-            runtime "org.yaml:snakeyaml:${snakeyaml_version}"
-        }
+shadowJar {
+    manifest {
+        attributes(
+                'Specification-Title': mod_display_name,
+                'Specification-Vendor': 'An1by',
+                'Specification-Version': '1',
+                'Implementation-Title': mod_display_name,
+                'Implementation-Version': mod_version,
+                'Implementation-Vendor': 'An1by',
+                'MixinConfigs': 'simplewhitelist.mixins.json'
+        )
     }
-}
-
-tasks.register('generateJava', Copy) {
-    from project(':common').file('src/template/java')
-    into "${layout.buildDirectory.asFile.get()}/generated/java"
-    expand 'minecraft_version': minecraft_version,
-            'mod_version': mod_version
-}
-sourceSets.main.java {
-    srcDir "${layout.buildDirectory.asFile.get()}/generated/java"
-}
-compileJava.dependsOn generateJava
-tasks.named('jarJar') {
-    dependsOn(':neoforge:shadowJar')
+    relocate 'net.kyori', 'net.aniby.simplewhitelist.libs.kyori'
+    relocate 'org.yaml.snakeyaml', 'net.aniby.simplewhitelist.libs.snakeyaml'
 }

@@ -1,0 +1,24 @@
+modLoader = "javafml"
+loaderVersion = "[25,)"
+license = "All Rights Reserved"
+issueTrackerURL = "https://github.com/an1by/SimpleWhitelist/issues"
+
+[[mods]]
+modId = "simplewhitelist"
+version = "${mod_version}"
+displayName = "SimpleWhitelist"
+displayURL = "https://modrinth.com/plugin/simplewhitelist"
+logoFile = "assets/simplewhitelist/icon.png"
+authors = "An1by"
+displayTest = "IGNORE_SERVER_VERSION"
+description = '''Simple whitelist system for your server'''
+
+[[mixins]]
+config = "simplewhitelist.mixins.json"
+
+[[dependencies.simplewhitelist]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.13.2,)"
+ordering = "NONE"
+side = "BOTH"

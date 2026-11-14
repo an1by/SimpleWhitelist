@@ -1,12 +1,18 @@
 package net.aniby.simplewhitelist.configuration;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class WhitelistSettings {
-    private boolean enabled;
-    private boolean caseSensitive;
-    private Map<String, String> messages;
-    private Map<String, String> commandMessages;
+    private boolean enabled = true;
+    private boolean caseSensitive = false;
+    private boolean enforceWhitelist = true;
+    private boolean logBlockedJoins = true;
+    private List<String> onBlockedJoinCommands = new ArrayList<>();
+    private Map<String, String> messages = new LinkedHashMap<>();
+    private Map<String, String> commandMessages = new LinkedHashMap<>();
 
     public boolean isCaseSensitive() {
         return this.caseSensitive;
@@ -24,12 +30,36 @@ public class WhitelistSettings {
         this.enabled = enabled;
     }
 
+    public boolean isEnforceWhitelist() {
+        return this.enforceWhitelist;
+    }
+
+    public void setEnforceWhitelist(boolean enforceWhitelist) {
+        this.enforceWhitelist = enforceWhitelist;
+    }
+
+    public boolean isLogBlockedJoins() {
+        return this.logBlockedJoins;
+    }
+
+    public void setLogBlockedJoins(boolean logBlockedJoins) {
+        this.logBlockedJoins = logBlockedJoins;
+    }
+
+    public List<String> getOnBlockedJoinCommands() {
+        return this.onBlockedJoinCommands;
+    }
+
+    public void setOnBlockedJoinCommands(List<String> onBlockedJoinCommands) {
+        this.onBlockedJoinCommands = onBlockedJoinCommands != null ? onBlockedJoinCommands : new ArrayList<>();
+    }
+
     public Map<String, String> getMessages() {
         return this.messages;
     }
 
     public void setMessages(Map<String, String> messages) {
-        this.messages = messages;
+        this.messages = messages != null ? messages : new LinkedHashMap<>();
     }
 
     public Map<String, String> getCommandMessages() {
@@ -37,6 +67,6 @@ public class WhitelistSettings {
     }
 
     public void setCommandMessages(Map<String, String> commandMessages) {
-        this.commandMessages = commandMessages;
+        this.commandMessages = commandMessages != null ? commandMessages : new LinkedHashMap<>();
     }
 }

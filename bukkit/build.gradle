@@ -1,0 +1,38 @@
+apply from: '../gradle-scripts/platform.gradle'
+
+repositories {
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots/' }
+}
+
+processResources {
+    inputs.property('mod_version', mod_version)
+    filesMatching('plugin.yml') {
+        expand 'mod_version': mod_version
+    }
+}
+
+dependencies {
+    compileOnly "org.spigotmc:spigot-api:${spigot_api_version}"
+
+    implementation "org.yaml:snakeyaml:${snakeyaml_version}"
+    shadow "org.yaml:snakeyaml:${snakeyaml_version}"
+
+    implementation "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
+    shadow "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
+
+    implementation "net.kyori:adventure-text-serializer-legacy:${adventure_minimessage_version}"
+    shadow "net.kyori:adventure-text-serializer-legacy:${adventure_minimessage_version}"
+
+    implementation "net.kyori:adventure-platform-bukkit:${adventure_platform_version}"
+    shadow "net.kyori:adventure-platform-bukkit:${adventure_platform_version}"
+
+    implementation "com.mojang:brigadier:${mojang_brigadier}"
+    shadow "com.mojang:brigadier:${mojang_brigadier}"
+}
+
+shadowJar {
+    relocate 'net.kyori', 'net.aniby.simplewhitelist.libs.kyori'
+    relocate 'com.mojang.brigadier', 'net.aniby.simplewhitelist.libs.brigadier'
+    relocate 'org.yaml.snakeyaml', 'net.aniby.simplewhitelist.libs.snakeyaml'
+}

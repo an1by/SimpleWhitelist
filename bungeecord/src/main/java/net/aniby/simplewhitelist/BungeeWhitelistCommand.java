@@ -1,62 +1,30 @@
 package net.aniby.simplewhitelist;
 
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.aniby.simplewhitelist.command.WhitelistCommand;
+import net.aniby.simplewhitelist.command.RawCommandRunner;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class BungeeWhitelistCommand extends Command implements TabExecutor {
-    private final CommandDispatcher<CommandSender> dispatcher;
-    private final BungeeWhitelistPlugin plugin;
+    private final RawCommandRunner<CommandSender> runner;
 
     protected BungeeWhitelistCommand(BungeeWhitelistPlugin plugin) {
-        super("simplewhitelist", WhitelistCommand.PERMISSION, "simplewl", "swl");
-        this.plugin = plugin;
-        this.dispatcher = new CommandDispatcher<>();
-        this.dispatcher.register(new WhitelistCommand<>(
-                new BungeeCommandSourceExecutor(), this.plugin
-        ).builder());
+        super("simplewhitelist", null, "simplewl", "swl");
+        this.runner = new RawCommandRunner<>(new BungeeCommandSourceExecutor(), plugin);
+    }
+
+    @Override
+    public boolean hasPermission(CommandSender sender) {
+        return this.runner.hasPermission(sender);
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        String input = ("simplewhitelist " + String.join(" ", args)).trim();
-        try {
-            this.dispatcher.execute(input, sender);
-        } catch (CommandSyntaxException e) {
-            throw new RuntimeException(e);
-        }
+        this.runner.execute(sender, args);
     }
 
     @Override
     public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
-        List<String> list = new ArrayList<>();
-        switch (args.length) {
-            case 0:
-            case 1: {
-                list = this.plugin.getConfiguration().getSettings().getCommandMessages()
-                        .keySet().stream().filter(
-                                n -> args.length == 0 || n.startsWith(args[0])
-                        ).collect(Collectors.toList());
-                break;
-            }
-            case 2: {
-                if (args[0].equals("remove")) {
-                    list = this.plugin.getConfiguration().getWhitelist().getSet()
-                            .stream().filter(
-                                    c -> args[1].isEmpty() || c.startsWith(args[1].toLowerCase())
-                            )
-                            .collect(Collectors.toList());
-                }
-                break;
-            }
-        }
-        return list;
+        return this.runner.suggest(sender, args);
     }
 }

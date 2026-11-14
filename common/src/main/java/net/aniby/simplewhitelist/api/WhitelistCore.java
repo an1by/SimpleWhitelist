@@ -3,8 +3,12 @@ package net.aniby.simplewhitelist.api;
 import net.aniby.simplewhitelist.configuration.WhitelistSettings;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import org.yaml.snakeyaml.TypeDescription;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,12 +21,25 @@ public class WhitelistCore {
             .builder()
             .tags(TagResolver.standard())
             .build();
-    public static final Yaml YAML;
+    public static final Yaml YAML = createYaml();
 
-    static {
-        YAML = new Yaml();
-        TypeDescription whitelistSettingsDescription = new TypeDescription(WhitelistSettings.class);
-        YAML.addTypeDescription(whitelistSettingsDescription);
+    public static Yaml createYaml() {
+        DumperOptions dumperOptions = new DumperOptions();
+        dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        dumperOptions.setPrettyFlow(true);
+        dumperOptions.setIndent(2);
+
+        LoaderOptions loaderOptions = new LoaderOptions();
+        loaderOptions.setTagInspector(tag -> WhitelistSettings.class.getName().equals(tag.getClassName()));
+
+        Representer representer = new Representer(dumperOptions);
+        representer.getPropertyUtils().setSkipMissingProperties(true);
+        representer.addClassTag(WhitelistSettings.class, Tag.MAP);
+
+        Constructor constructor = new Constructor(WhitelistSettings.class, loaderOptions);
+        constructor.setPropertyUtils(representer.getPropertyUtils());
+
+        return new Yaml(constructor, representer, dumperOptions, loaderOptions);
     }
 
     public static void saveDefaultFile(Path path, String resourcePath) throws IOException {

@@ -1,0 +1,147 @@
+def parseList = { Object raw ->
+    if (raw == null) return []
+    return raw.toString().split(',').collect { it.trim() }.findAll { !it.isEmpty() }
+}
+
+def platformJava = (project.findProperty('platform_java_version') ?: '8') as int
+def isModPlatform = (project.findProperty('is_mod_platform') ?: 'false').toString().toBoolean()
+def platformLabel = (project.findProperty('platform_label') ?: project.name).toString()
+def enableHangar = (project.findProperty('enable_hangar_upload') ?: 'false').toString().toBoolean()
+
+apply plugin: 'java'
+apply plugin: 'com.gradleup.shadow'
+apply plugin: 'com.modrinth.minotaur'
+if (enableHangar) {
+    apply plugin: 'io.papermc.hangar-publish-plugin'
+}
+
+group = maven_group
+version = mod_version
+base {
+    archivesName = "${mod_id}-${project.name}"
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://libraries.minecraft.net' }
+}
+
+evaluationDependsOn(':common')
+
+dependencies {
+    implementation(project(':common')) {
+        transitive = false
+    }
+    shadow(project(':common')) {
+        transitive = false
+    }
+}
+
+def generatedJavaDir = layout.buildDirectory.dir('generated/java')
+
+def generateJavaTask = tasks.register('generateJava', Copy) {
+    from project(':common').file('src/template/java')
+    into generatedJavaDir
+    inputs.property('mod_version', mod_version)
+    expand 'mod_version': mod_version
+}
+
+sourceSets.main.java.srcDir(generatedJavaDir)
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = platformJava
+    options.compilerArgs.add('-Xlint:-options')
+}
+
+tasks.named('compileJava', JavaCompile).configure {
+    dependsOn generateJavaTask
+}
+
+tasks.named('jar', Jar).configure {
+    archiveClassifier = 'slim'
+}
+
+tasks.named('shadowJar').configure {
+    configurations = [project.configurations.shadow]
+    archiveClassifier = ''
+    mergeServiceFiles()
+
+    from("${rootDir}/LICENSE") {
+        rename { "LICENSE_${mod_id}" }
+    }
+
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+    exclude 'META-INF/maven/**'
+    exclude 'META-INF/proguard/**'
+    if (!isModPlatform) {
+        exclude 'net/aniby/simplewhitelist/mod/**'
+    }
+}
+
+tasks.named('assemble').configure {
+    dependsOn tasks.named('shadowJar')
+}
+
+tasks.named('build').configure {
+    dependsOn tasks.named('shadowJar')
+}
+
+def changelogFile = file('changelog.md').exists() ? file('changelog.md') : rootProject.file('changelog.md')
+def modrinthToken = System.getenv('MODRINTH_TOKEN') ?: (project.findProperty('modrinth_token') ?: '').toString()
+def optionalDeps = parseList(project.findProperty('modrinth_optional_dependencies'))
+def rawGameVersions = project.findProperty('modrinth_game_versions_ref')
+        ? rootProject.findProperty(project.findProperty('modrinth_game_versions_ref').toString())
+        : project.findProperty('modrinth_game_versions')
+
+modrinth {
+    token = modrinthToken
+    projectId = modrinth_upload_id
+    versionNumber = "${project.name}-${mod_version}"
+    versionName = "${mod_display_name} ${mod_version} (${platform_label})"
+    uploadFile = tasks.named('shadowJar')
+    versionType = upload_release_type.toString().toLowerCase()
+    changelog = changelogFile.exists() ? changelogFile.getText('UTF-8') : ''
+    gameVersions = parseList(rawGameVersions)
+    loaders = parseList(project.findProperty('modrinth_loaders'))
+    if (!optionalDeps.isEmpty()) {
+        dependencies {
+            optionalDeps.each { dep ->
+                optional.project dep
+            }
+        }
+    }
+    def readmeFile = rootProject.file('README.md')
+    if (readmeFile.exists()) {
+        syncBodyFrom = readmeFile.getText('UTF-8')
+    }
+}
+
+tasks.named('modrinth').configure {
+    group = 'upload'
+    dependsOn tasks.named('shadowJar')
+}
+
+if (enableHangar) {
+    def hangarKey = System.getenv('HANGAR_API_KEY') ?: (project.findProperty('hangar_api_key') ?: '').toString()
+    def hangarLoaders = parseList(project.findProperty('hangar_loaders'))
+    def hangarVersions = parseList(project.findProperty('hangar_versions'))
+
+    hangarPublish {
+        publications.register('plugin') {
+            version = "${project.name}-${mod_version}"
+            id = hangar_upload_id
+            channel = upload_release_type.toString().capitalize()
+            changelog = changelogFile.exists() ? changelogFile.getText('UTF-8') : ''
+            apiKey = hangarKey
+            platforms {
+                hangarLoaders.each { loaderName ->
+                    register(loaderName) {
+                        jar = tasks.named('shadowJar').flatMap { it.archiveFile }
+                        platformVersions = hangarVersions
+                    }
+                }
+            }
+        }
+    }
+}

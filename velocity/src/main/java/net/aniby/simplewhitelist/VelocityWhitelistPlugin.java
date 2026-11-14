@@ -9,12 +9,16 @@ import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
+import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.aniby.simplewhitelist.api.WhitelistPlugin;
 import net.aniby.simplewhitelist.command.WhitelistCommand;
 import net.aniby.simplewhitelist.configuration.WhitelistConfiguration;
+import net.kyori.adventure.text.Component;
 
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Plugin(
         id = VelocityWhitelistPlugin.MOD_ID,
@@ -27,13 +31,7 @@ import java.nio.file.Path;
 public class VelocityWhitelistPlugin implements WhitelistPlugin {
     public static final String MOD_ID = "simplewhitelist";
 
-    private WhitelistConfiguration configuration;
-
-    @Override
-    public WhitelistConfiguration getConfiguration() {
-        return this.configuration;
-    }
-
+    private volatile WhitelistConfiguration configuration;
     private final ProxyServer proxy;
     private final @DataDirectory Path pluginFolder;
 
@@ -43,12 +41,63 @@ public class VelocityWhitelistPlugin implements WhitelistPlugin {
         this.pluginFolder = pluginFolder;
     }
 
+    private WhitelistConfiguration ensureConfiguration() {
+        WhitelistConfiguration cfg = this.configuration;
+        if (cfg == null) {
+            synchronized (this) {
+                cfg = this.configuration;
+                if (cfg == null) {
+                    cfg = new WhitelistConfiguration(
+                            this.pluginFolder.resolve("config.yml"),
+                            this.pluginFolder.resolve("whitelist.txt")
+                    );
+                    this.configuration = cfg;
+                }
+            }
+        }
+        return cfg;
+    }
+
+    @Override
+    public WhitelistConfiguration getConfiguration() {
+        return this.ensureConfiguration();
+    }
+
+    @Override
+    public Collection<String> getOnlinePlayerNames() {
+        return this.proxy.getAllPlayers().stream()
+                .map(Player::getUsername)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void kickUnwhitelistedPlayers() {
+        WhitelistConfiguration cfg = this.ensureConfiguration();
+        for (Player player : this.proxy.getAllPlayers()) {
+            String username = player.getUsername();
+            if (!cfg.getWhitelist().contains(username)) {
+                player.disconnect(this.getNotInWhitelistMessage(username));
+            }
+        }
+    }
+
+    @Override
+    public void logConsoleMessage(Component message) {
+        if (message != null) {
+            this.proxy.getConsoleCommandSource().sendMessage(message);
+        }
+    }
+
+    @Override
+    public void executeConsoleCommand(String command) {
+        if (command != null && !command.trim().isEmpty()) {
+            this.proxy.getCommandManager().executeAsync(this.proxy.getConsoleCommandSource(), command);
+        }
+    }
+
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-        this.configuration = new WhitelistConfiguration(
-                this.pluginFolder.resolve("config.yml"),
-                this.pluginFolder.resolve("whitelist.txt")
-        );
+        this.ensureConfiguration();
 
         CommandManager commandManager = this.proxy.getCommandManager();
         CommandMeta commandMeta = commandManager.metaBuilder("simplewhitelist")
@@ -64,10 +113,12 @@ public class VelocityWhitelistPlugin implements WhitelistPlugin {
 
     @Subscribe(priority = 1)
     public void onPreLogin(PreLoginEvent event) {
-        if (this.configuration.getSettings().isEnabled()
-                && !this.configuration.getWhitelist().contains(event.getUsername())) {
+        WhitelistConfiguration cfg = this.ensureConfiguration();
+        String username = event.getUsername();
+        if (cfg.getSettings().isEnabled() && !cfg.getWhitelist().contains(username)) {
+            this.handleBlockedJoin(username);
             event.setResult(PreLoginEvent.PreLoginComponentResult.denied(
-                    this.configuration.getMessage("notInWhitelist")
+                    this.getNotInWhitelistMessage(username)
             ));
         }
     }

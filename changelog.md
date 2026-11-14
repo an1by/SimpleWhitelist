@@ -1,0 +1,14 @@
+## Release 2.0.0
+- **!BREAKING CHANGE!** Migrated configuration format from `JSON` to `YAML` (`config.yml`);
+- Universal support for all **12 platforms** across **Minecraft `1.12 – 26.x`** from a single branch:
+  - **Spigot**, **Paper**, **Purpur**, **Folia** (`1.12 – 26.x`);
+  - **BungeeCord**, **Waterfall**, **Velocity** (`1.12 – 26.x`);
+  - **Fabric** (`1.14 – 26.x`) & **Quilt** (`1.18.2 – 26.x`) with zero Fabric API version lock;
+  - **Forge** (`1.12 – 1.12.2` & `1.13.2 – 26.x`) and **NeoForge** (`1.20.2 – 26.x`);
+  - **Sponge** API 7 (`1.12 – 1.12.2`) & API 8+ (`1.16.5 – 26.x`);
+- Full [Adventure MiniMessage](https://docs.advntr.dev/minimessage/format.html) formatting support;
+- Unified `/simplewhitelist` (`/swl`, `/simplewl`) Brigadier command tree with tab-completion and full Geyser/Floodgate Bedrock nickname support (`.`, `*`, `+`, `-`, spaces);
+- Granular per-subcommand permissions (`simplewhitelist.command.<subcommand>`) with LuckPerms / native PermissionAPI integration;
+- Configurable blocked-join console logging (`logBlockedJoins`) and custom console commands (`onBlockedJoinCommands`);
+- Self-healing & fail-closed YAML configuration loader (fixes SnakeYAML global tag errors on reload/Velocity);
+- Optional `enforceWhitelist` live disconnect for online non-whitelisted players.

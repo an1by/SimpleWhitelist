@@ -1,0 +1,13 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "net.aniby.simplewhitelist.mod.mixin",
+  "plugin": "net.aniby.simplewhitelist.mod.mixin.SimpleWhitelistMixinPlugin",
+  "mixins": [
+    "PlayerListTargetMixin",
+    "CommandsTargetMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

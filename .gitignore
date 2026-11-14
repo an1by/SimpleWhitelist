@@ -1,0 +1,14 @@
+**/run/
+**/build/
+/!templates/
+.gradle/
+.idea/
+.codegraph/
+build/
+dist/
+run/
+*.log
+desktop.ini
+neoforge/runs/
+bot/node_modules/
+bot/bun.lock

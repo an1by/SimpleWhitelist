@@ -2,23 +2,40 @@ plugins {
     id 'java'
 }
 
-sourceCompatibility = JavaLanguageVersion.of(11)
-targetCompatibility = JavaLanguageVersion.of(11)
-archivesBaseName = archives_base_name
+base {
+    archivesName = archives_base_name
+}
 version = mod_version
 group = maven_group
 
 repositories {
     mavenCentral()
-    maven {
-        url "https://libraries.minecraft.net"
-    }
+    maven { url = 'https://libraries.minecraft.net' }
+    maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
 }
 
 dependencies {
     compileOnly "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
+    compileOnly "net.kyori:adventure-text-serializer-gson:${adventure_minimessage_version}"
+    compileOnly "net.kyori:adventure-text-serializer-legacy:${adventure_minimessage_version}"
     compileOnly "org.yaml:snakeyaml:${snakeyaml_version}"
     compileOnly "com.mojang:brigadier:${mojang_brigadier}"
+    compileOnly "org.spongepowered:mixin:${mixin_version}"
+    compileOnly "org.ow2.asm:asm-tree:${asm_version}"
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
+    testImplementation "net.kyori:adventure-text-serializer-gson:${adventure_minimessage_version}"
+    testImplementation "net.kyori:adventure-text-serializer-legacy:${adventure_minimessage_version}"
+    testImplementation "net.kyori:adventure-text-serializer-plain:${adventure_minimessage_version}"
+    testImplementation "org.yaml:snakeyaml:${snakeyaml_version}"
+    testImplementation "com.mojang:brigadier:${mojang_brigadier}"
+    testImplementation "org.spongepowered:mixin:${mixin_version}"
+    testImplementation "org.ow2.asm:asm-tree:${asm_version}"
+    testImplementation "org.ow2.asm:asm-util:${asm_version}"
+    testImplementation 'com.google.code.gson:gson:2.10.1'
 }
 
 sourceSets {
@@ -31,4 +48,26 @@ sourceSets {
         compileClasspath += sourceSets.template.output
         runtimeClasspath += sourceSets.template.output
     }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs.add('-Xlint:-options')
+}
+
+tasks.named('compileTemplateJava', JavaCompile).configure {
+    options.release = 8
+}
+
+tasks.named('compileJava', JavaCompile).configure {
+    options.release = 8
+}
+
+tasks.named('compileTestJava', JavaCompile).configure {
+    options.release = 17
+}
+
+test {
+    useJUnitPlatform()
+    jvmArgs '-Xverify:all'
 }

@@ -1,47 +1,34 @@
-plugins {
-    id 'java'
+apply from: '../gradle-scripts/platform.gradle'
+
+repositories {
+    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
-apply plugin: 'com.gradleup.shadow'
-apply plugin: 'com.modrinth.minotaur'
-apply plugin: 'io.papermc.hangar-publish-plugin'
-
-apply from: "https://raw.githubusercontent.com/henkelmax/mod-gradle-scripts/${mod_gradle_script_version}/mod.gradle"
-
 processResources {
+    inputs.property('mod_version', mod_version)
     filesMatching('bungee.yml') {
         expand 'mod_version': mod_version
     }
 }
 
-repositories {
-    mavenCentral()
-    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots/' }
-}
-
 dependencies {
     compileOnly "net.md-5:bungeecord-api:${bungeecord_version}"
+
     implementation "org.yaml:snakeyaml:${snakeyaml_version}"
+    shadow "org.yaml:snakeyaml:${snakeyaml_version}"
+
     implementation "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
     shadow "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
-    implementation "net.kyori:adventure-platform-bungeecord:${adventure_platform}"
-    shadow "net.kyori:adventure-platform-bungeecord:${adventure_platform}"
+
+    implementation "net.kyori:adventure-platform-bungeecord:${adventure_platform_version}"
+    shadow "net.kyori:adventure-platform-bungeecord:${adventure_platform_version}"
+
     implementation "com.mojang:brigadier:${mojang_brigadier}"
     shadow "com.mojang:brigadier:${mojang_brigadier}"
 }
 
-tasks.register('generateJava', Copy) {
-    from project(':common').file('src/template/java')
-    into "${layout.buildDirectory.asFile.get()}/generated/java"
-    expand 'mod_version': mod_version
-}
-
-sourceSets.main.java {
-    srcDir "${layout.buildDirectory.asFile.get()}/generated/java"
-}
-
-compileJava.dependsOn generateJava
-build.dependsOn shadowJar
 shadowJar {
-    relocate 'com.mojang.brigadier', 'shadow.com.mojang.brigadier'
+    relocate 'net.kyori', 'net.aniby.simplewhitelist.libs.kyori'
+    relocate 'com.mojang.brigadier', 'net.aniby.simplewhitelist.libs.brigadier'
+    relocate 'org.yaml.snakeyaml', 'net.aniby.simplewhitelist.libs.snakeyaml'
 }

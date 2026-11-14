@@ -1,0 +1,35 @@
+{
+  "loader": {
+    "name": "java_plain",
+    "version": "1.0"
+  },
+  "license": "All Rights Reserved",
+  "plugins": [
+    {
+      "id": "simplewhitelist",
+      "entrypoint": "net.aniby.simplewhitelist.sponge.SpongeWhitelistPlugin",
+      "name": "SimpleWhitelist",
+      "description": "Simple whitelist system for your server",
+      "version": "${mod_version}",
+      "links": {
+        "homepage": "https://modrinth.com/plugin/simplewhitelist",
+        "source": "https://github.com/an1by/SimpleWhitelist",
+        "issues": "https://github.com/an1by/SimpleWhitelist/issues"
+      },
+      "contributors": [
+        {
+          "name": "An1by",
+          "description": "Author"
+        }
+      ],
+      "dependencies": [
+        {
+          "id": "spongeapi",
+          "version": "[8.0.0,)",
+          "load-order": "AFTER",
+          "optional": false
+        }
+      ]
+    }
+  ]
+}

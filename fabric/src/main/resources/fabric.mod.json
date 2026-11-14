@@ -16,17 +16,17 @@
   "icon": "assets/simplewhitelist/icon.png",
   "environment": "*",
   "entrypoints": {
-    "server": [
+    "main": [
       "net.aniby.simplewhitelist.fabric.FabricWhitelistMod"
     ]
   },
+  "mixins": [
+    "simplewhitelist.mixins.json"
+  ],
   "depends": {
-    "fabricloader": "${fabric_loader_dependency}",
-    "minecraft": "${minecraft_version}",
-    "java": ">=${java_version}"
-  },
-  "breaks": {
-    "fabric-api": "${fabric_api_dependency_breaks}"
+    "fabricloader": ">=0.12.0",
+    "minecraft": ">=1.14",
+    "java": ">=8"
   },
   "suggests": {
     "fabric-permissions-api-v0": "*"

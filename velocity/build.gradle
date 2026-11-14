@@ -1,16 +1,6 @@
-plugins {
-    id 'java'
-}
-
-apply plugin: 'com.gradleup.shadow'
-apply plugin: 'com.modrinth.minotaur'
-apply plugin: 'io.papermc.hangar-publish-plugin'
-apply plugin: 'xyz.jpenilla.run-velocity'
-
-apply from: "https://raw.githubusercontent.com/henkelmax/mod-gradle-scripts/${mod_gradle_script_version}/mod.gradle"
+apply from: '../gradle-scripts/platform.gradle'
 
 repositories {
-    mavenCentral()
     maven { url = 'https://repo.papermc.io/repository/maven-public/' }
 }
 
@@ -19,26 +9,12 @@ dependencies {
     annotationProcessor "com.velocitypowered:velocity-api:${velocity_version}"
 
     implementation "org.yaml:snakeyaml:${snakeyaml_version}"
-    implementation "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
-    implementation "com.mojang:brigadier:${mojang_brigadier}"
+    shadow "org.yaml:snakeyaml:${snakeyaml_version}"
+
+    compileOnly "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
+    compileOnly "com.mojang:brigadier:${mojang_brigadier}"
 }
 
-tasks.register('generateJava', Copy) {
-    from project(':common').file('src/template/java')
-    into "${layout.buildDirectory.asFile.get()}/generated/java"
-    expand 'mod_version': mod_version
+shadowJar {
+    relocate 'org.yaml.snakeyaml', 'net.aniby.simplewhitelist.libs.snakeyaml'
 }
-
-sourceSets.main.java {
-    srcDir "${layout.buildDirectory.asFile.get()}/generated/java"
-}
-
-tasks {
-    runVelocity {
-        velocityVersion('3.3.0-SNAPSHOT')
-    }
-}
-
-compileJava.dependsOn generateJava
-build.dependsOn shadowJar
-runVelocity.dependsOn(build)

@@ -1,0 +1,37 @@
+apply from: '../gradle-scripts/platform.gradle'
+
+repositories {
+    maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+}
+
+processResources {
+    inputs.property('mod_version', mod_version)
+    filesMatching('mcmod.info') {
+        expand 'mod_version': mod_version
+    }
+}
+
+dependencies {
+    compileOnly "org.spongepowered:spongeapi:${spongeapi_legacy_version}"
+
+    implementation "org.yaml:snakeyaml:${snakeyaml_version}"
+    shadow "org.yaml:snakeyaml:${snakeyaml_version}"
+
+    implementation "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
+    shadow "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
+
+    implementation "net.kyori:adventure-text-serializer-gson:${adventure_minimessage_version}"
+    shadow "net.kyori:adventure-text-serializer-gson:${adventure_minimessage_version}"
+
+    implementation "net.kyori:adventure-text-serializer-legacy:${adventure_minimessage_version}"
+    shadow "net.kyori:adventure-text-serializer-legacy:${adventure_minimessage_version}"
+
+    implementation "com.mojang:brigadier:${mojang_brigadier}"
+    shadow "com.mojang:brigadier:${mojang_brigadier}"
+}
+
+shadowJar {
+    relocate 'net.kyori', 'net.aniby.simplewhitelist.libs.kyori'
+    relocate 'com.mojang.brigadier', 'net.aniby.simplewhitelist.libs.brigadier'
+    relocate 'org.yaml.snakeyaml', 'net.aniby.simplewhitelist.libs.snakeyaml'
+}

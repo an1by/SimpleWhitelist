@@ -1,0 +1,145 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 2.0.0). Leave empty to use gradle.properties'
+        required: false
+        type: string
+      release_type:
+        description: 'Modrinth release channel'
+        required: false
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - beta
+          - alpha
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release to GitHub & Modrinth
+    runs-on: ubuntu-latest
+    env:
+      MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+      HANGAR_API_KEY: ${{ secrets.HANGAR_API_KEY }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Resolve version and release metadata
+        id: meta
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == v* ]]; then
+            RAW_TAG="${{ github.ref_name }}"
+            MOD_VERSION="${RAW_TAG#v}"
+            GIT_TAG="${RAW_TAG}"
+          elif [[ -n "${{ inputs.version }}" ]]; then
+            MOD_VERSION="${{ inputs.version }}"
+            MOD_VERSION="${MOD_VERSION#v}"
+            GIT_TAG="v${MOD_VERSION}"
+          else
+            MOD_VERSION=$(grep -E '^mod_version=' gradle.properties | cut -d'=' -f2 | tr -d '\r')
+            GIT_TAG="v${MOD_VERSION}"
+          fi
+
+          if [[ -n "${{ inputs.release_type }}" ]]; then
+            RELEASE_TYPE="${{ inputs.release_type }}"
+          elif [[ "${MOD_VERSION}" == *alpha* ]]; then
+            RELEASE_TYPE="alpha"
+          elif [[ "${MOD_VERSION}" == *beta* || "${MOD_VERSION}" == *rc* ]]; then
+            RELEASE_TYPE="beta"
+          else
+            RELEASE_TYPE="release"
+          fi
+
+          if [[ "${RELEASE_TYPE}" != "release" ]]; then
+            PRERELEASE="true"
+          else
+            PRERELEASE="false"
+          fi
+
+          echo "mod_version=${MOD_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "git_tag=${GIT_TAG}" >> "$GITHUB_OUTPUT"
+          echo "release_type=${RELEASE_TYPE}" >> "$GITHUB_OUTPUT"
+          echo "prerelease=${PRERELEASE}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate secrets
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: |
+          if [[ -z "${MODRINTH_TOKEN}" ]]; then
+            echo "::error::Secret MODRINTH_TOKEN is not set in repository secrets!"
+            exit 1
+          fi
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Build and test all platforms
+        run: >-
+          ./gradlew build
+          -Pmod_version=${{ steps.meta.outputs.mod_version }}
+          -Pupload_release_type=${{ steps.meta.outputs.release_type }}
+          --no-daemon
+
+      - name: Publish all 9 universal artifacts to Modrinth
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: >-
+          ./gradlew publishModrinthAll
+          -Pmod_version=${{ steps.meta.outputs.mod_version }}
+          -Pupload_release_type=${{ steps.meta.outputs.release_type }}
+          --no-daemon
+
+      - name: Publish to Hangar (Optional)
+        if: env.HANGAR_API_KEY != ''
+        env:
+          HANGAR_API_KEY: ${{ secrets.HANGAR_API_KEY }}
+        run: >-
+          ./gradlew
+          :bungeecord:publishAllPublicationsToHangar
+          :velocity:publishAllPublicationsToHangar
+          :bukkit:publishAllPublicationsToHangar
+          -Pmod_version=${{ steps.meta.outputs.mod_version }}
+          -Pupload_release_type=${{ steps.meta.outputs.release_type }}
+          --no-daemon
+
+      - name: Collect release JARs
+        run: |
+          mkdir -p dist
+          for loader in bungeecord velocity bukkit sponge-legacy sponge fabric forge-legacy forge neoforge; do
+            cp "${loader}/build/libs/simplewhitelist-${loader}-${{ steps.meta.outputs.mod_version }}.jar" dist/
+          done
+          ls -lh dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.git_tag }}
+          name: SimpleWhitelist ${{ steps.meta.outputs.mod_version }}
+          body_path: changelog.md
+          generate_release_notes: true
+          prerelease: ${{ steps.meta.outputs.prerelease }}
+          files: dist/*.jar

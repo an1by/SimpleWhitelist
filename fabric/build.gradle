@@ -1,44 +1,34 @@
-apply plugin: 'fabric-loom'
-apply plugin: 'com.gradleup.shadow'
-apply plugin: 'com.matthewprenger.cursegradle'
-apply plugin: 'com.modrinth.minotaur'
-apply plugin: 'mod-update'
+apply from: '../gradle-scripts/platform.gradle'
 
-apply from: "https://raw.githubusercontent.com/henkelmax/mod-gradle-scripts/${mod_gradle_script_version}/mod.gradle"
+repositories {
+    maven { url = 'https://maven.fabricmc.net/' }
+}
 
 processResources {
+    inputs.property('mod_version', mod_version)
     filesMatching('fabric.mod.json') {
-        expand 'java_version': java_version,
-                'mod_version': mod_version,
-                'minecraft_version': minecraft_version,
-                'fabric_loader_dependency': fabric_loader_dependency,
-                'fabric_api_dependency_breaks': fabric_api_dependency_breaks
+        expand 'mod_version': mod_version
     }
 }
 
-repositories {
-    maven { url = 'https://maven.shedaniel.me/' }
-    maven { url = 'https://maven.terraformersmc.com/releases' }
-    maven { url = 'https://repo.viaversion.com/' }
-}
-
 dependencies {
-    modImplementation include("net.kyori:adventure-platform-fabric:${adventure_platform}")
-    modImplementation include("me.lucko:fabric-permissions-api:${fabric_permission_api_version}")
-    modImplementation include("org.yaml:snakeyaml:${snakeyaml_version}")
-}
+    compileOnly "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    compileOnly "com.mojang:brigadier:${mojang_brigadier}"
 
-tasks.register('generateJava', Copy) {
-    from project(':common').file('src/template/java')
-    into "${layout.buildDirectory.asFile.get()}/generated/java"
-    expand 'minecraft_version': minecraft_version,
-            'mod_version': mod_version
+    implementation "org.yaml:snakeyaml:${snakeyaml_version}"
+    shadow "org.yaml:snakeyaml:${snakeyaml_version}"
+
+    implementation "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
+    shadow "net.kyori:adventure-text-minimessage:${adventure_minimessage_version}"
+
+    implementation "net.kyori:adventure-text-serializer-gson:${adventure_minimessage_version}"
+    shadow "net.kyori:adventure-text-serializer-gson:${adventure_minimessage_version}"
+
+    implementation "net.kyori:adventure-text-serializer-legacy:${adventure_minimessage_version}"
+    shadow "net.kyori:adventure-text-serializer-legacy:${adventure_minimessage_version}"
 }
-sourceSets.main.java {
-    srcDir "${layout.buildDirectory.asFile.get()}/generated/java"
-}
-compileJava.dependsOn generateJava
 
 shadowJar {
-    exclude 'natives/*-x86/*'
+    relocate 'net.kyori', 'net.aniby.simplewhitelist.libs.kyori'
+    relocate 'org.yaml.snakeyaml', 'net.aniby.simplewhitelist.libs.snakeyaml'
 }

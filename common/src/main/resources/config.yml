@@ -1,11 +1,16 @@
 enabled: true
 caseSensitive: false
+enforceWhitelist: true
+logBlockedJoins: true
+onBlockedJoinCommands: []
 messages:
   noPermission: "<red>Not enough permissions!</red>"
   invalidArguments: "<red>Invalid arguments!</red>"
   needPlayer: "<red>Player's name is needed!</red>"
   alreadyWhitelisted: "<red><name> is already whitelisted!</red>"
+  notWhitelisted: "<red><name> is not in whitelist!</red>"
   notInWhitelist: "<red>You are not in simple whitelist!</red>"
+  blockedJoin: "<gold>[SimpleWhitelist]</gold> <yellow><name></yellow> <red>tried to join, but is not whitelisted!</red>"
   empty: "Empty"
 commandMessages:
   add: "<green><name> added to whitelist!</green>"
@@ -18,6 +23,7 @@ commandMessages:
     <dark_purple>{ <light_purple>SimpleWhitelist<dark_purple> }
     <yellow>:: <white>/swl add <aqua><name></aqua></white>
     <yellow>:: <white>/swl remove <aqua><name></aqua></white>
+    <yellow>:: <white>/swl list</white>
     <yellow>:: <white>/swl enable</white>
     <yellow>:: <white>/swl disable</white>
     <yellow>:: <white>/swl reload</white>

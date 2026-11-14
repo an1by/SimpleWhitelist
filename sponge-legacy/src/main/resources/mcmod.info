@@ -1,0 +1,15 @@
+[
+  {
+    "modid": "simplewhitelist",
+    "name": "SimpleWhitelist",
+    "version": "${mod_version}",
+    "description": "Simple whitelist system for your server",
+    "url": "https://modrinth.com/plugin/simplewhitelist",
+    "authorList": [
+      "An1by"
+    ],
+    "dependencies": [
+      "spongeapi@7.0.0"
+    ]
+  }
+]

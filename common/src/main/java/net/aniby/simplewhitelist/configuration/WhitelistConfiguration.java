@@ -5,17 +5,24 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class WhitelistConfiguration {
-    private WhitelistSettings settings = null;
-    private Whitelist whitelist = null;
+    private static final Logger LOGGER = Logger.getLogger("SimpleWhitelist");
+    private static final WhitelistSettings DEFAULT_SETTINGS = loadBundledDefaults();
+
+    private volatile WhitelistSettings settings = loadBundledDefaults();
+    private volatile Whitelist whitelist = new Whitelist(Collections.emptySet(), false);
     private final Path configFile;
     private final Path whitelistFile;
 
@@ -26,18 +33,33 @@ public class WhitelistConfiguration {
         this.saveDefault();
     }
 
+    private static WhitelistSettings loadBundledDefaults() {
+        try (InputStream stream = WhitelistCore.class.getResourceAsStream("/config.yml")) {
+            if (stream != null) {
+                WhitelistSettings loaded = WhitelistCore.createYaml().loadAs(stream, WhitelistSettings.class);
+                if (loaded != null) {
+                    return loaded;
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return new WhitelistSettings();
+    }
+
     public Component getMessage(String path, TagResolver... resolvers) {
-        return WhitelistCore.MINI_MESSAGE.deserialize(
-                this.settings.getMessages().get(path),
-                resolvers
-        );
+        String raw = this.settings.getMessages().get(path);
+        if (raw == null) {
+            raw = DEFAULT_SETTINGS.getMessages().getOrDefault(path, path);
+        }
+        return WhitelistCore.MINI_MESSAGE.deserialize(raw, resolvers);
     }
 
     public Component getCommandMessage(String path, TagResolver... resolvers) {
-        return WhitelistCore.MINI_MESSAGE.deserialize(
-                this.settings.getCommandMessages().get(path),
-                resolvers
-        );
+        String raw = this.settings.getCommandMessages().get(path);
+        if (raw == null) {
+            raw = DEFAULT_SETTINGS.getCommandMessages().getOrDefault(path, path);
+        }
+        return WhitelistCore.MINI_MESSAGE.deserialize(raw, resolvers);
     }
 
     public WhitelistSettings getSettings() {
@@ -48,37 +70,79 @@ public class WhitelistConfiguration {
         return this.whitelist;
     }
 
-    public void load() {
+    public synchronized void load() {
+        boolean hadLegacyGlobalTag = false;
         try {
-            this.settings = WhitelistCore.YAML.loadAs(
-                    Files.readString(this.configFile),
+            String rawYaml = new String(Files.readAllBytes(this.configFile), StandardCharsets.UTF_8);
+            String sanitized = stripLeadingGlobalTag(rawYaml);
+            hadLegacyGlobalTag = !sanitized.equals(rawYaml);
+
+            WhitelistSettings loaded = WhitelistCore.createYaml().loadAs(
+                    sanitized,
                     WhitelistSettings.class
             );
+            if (loaded == null) {
+                loaded = loadBundledDefaults();
+            }
+            DEFAULT_SETTINGS.getMessages().forEach(loaded.getMessages()::putIfAbsent);
+            DEFAULT_SETTINGS.getCommandMessages().forEach(loaded.getCommandMessages()::putIfAbsent);
+            this.settings = loaded;
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, "[SimpleWhitelist] Failed to parse config.yml, keeping fail-safe settings", e);
+            if (this.settings == null) {
+                this.settings = loadBundledDefaults();
+            }
+        }
 
-            Set<String> whitelistedPlayers = Files.readAllLines(this.whitelistFile)
-                    .stream().map(String::strip)
-                    .filter(s -> !s.isEmpty())
+        if (hadLegacyGlobalTag) {
+            try {
+                this.saveSettings();
+            } catch (Throwable ignored) {
+            }
+        }
+
+        try {
+            Set<String> whitelistedPlayers = Files.readAllLines(this.whitelistFile, StandardCharsets.UTF_8)
+                    .stream()
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty() && !s.startsWith("#"))
                     .collect(Collectors.toSet());
             this.whitelist = new Whitelist(whitelistedPlayers, this.settings.isCaseSensitive());
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, "[SimpleWhitelist] Failed to read whitelist.txt, keeping existing whitelist", e);
+            if (this.whitelist == null) {
+                this.whitelist = new Whitelist(Collections.emptySet(), this.settings.isCaseSensitive());
+            }
+        }
+    }
+
+    private static final java.util.regex.Pattern LEADING_GLOBAL_TAG_PATTERN = java.util.regex.Pattern.compile(
+            "^(?:\\uFEFF)?(?:[ \\t]*#[^\\n]*\\r?\\n)*\\s*(?:---\\s+)?!!\\S+[ \\t]*(?:\\r?\\n)?"
+    );
+
+    private static String stripLeadingGlobalTag(String rawYaml) {
+        if (rawYaml == null) {
+            return "";
+        }
+        return LEADING_GLOBAL_TAG_PATTERN.matcher(rawYaml).replaceFirst("");
+    }
+
+    public synchronized void saveWhitelist() {
+        try {
+            List<String> sorted = new ArrayList<>(this.whitelist.getSet());
+            sorted.sort(String.CASE_INSENSITIVE_ORDER);
+            String content = sorted.isEmpty() ? "" : String.join("\n", sorted) + "\n";
+            Files.write(this.whitelistFile, content.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void saveWhitelist() {
+    public synchronized void saveSettings() {
         try {
-            String string = String.join("\n", this.whitelist.getSet());
-            Files.writeString(this.whitelistFile, string, StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void saveSettings() {
-        try {
-            String json = WhitelistCore.YAML.dump(this.settings);
-            Files.writeString(this.configFile, json, StandardCharsets.UTF_8);
-        } catch (Exception e) {
+            String yaml = WhitelistCore.createYaml().dumpAsMap(this.settings);
+            Files.write(this.configFile, yaml.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -88,7 +152,7 @@ public class WhitelistConfiguration {
             WhitelistCore.saveDefaultFile(this.configFile, "/config.yml");
             WhitelistCore.saveDefaultFile(this.whitelistFile, "/whitelist.txt");
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOGGER.log(Level.SEVERE, "[SimpleWhitelist] Failed to save default configuration files", e);
         }
         this.load();
     }
