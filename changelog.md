@@ -1,5 +1,4 @@
-## Release 2.0.0
-- **!BREAKING CHANGE!** Migrated configuration format from `JSON` to `YAML` (`config.yml`);
+## Release 2.1.0
 - Universal support for all **12 platforms** across **Minecraft `1.12 – 26.x`** from a single branch:
   - **Spigot**, **Paper**, **Purpur**, **Folia** (`1.12 – 26.x`);
   - **BungeeCord**, **Waterfall**, **Velocity** (`1.12 – 26.x`);
